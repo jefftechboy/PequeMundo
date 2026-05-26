@@ -1,0 +1,264 @@
+  * { 
+    margin: 0; padding: 0; box-sizing: border-box; 
+  }
+
+  body { min-height: 100vh; font-family: 'Inter', sans-serif; background: #f9f4ee; color: #2d2a24; }
+  header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: white; border-bottom: 1px solid #f0e2d0; }
+  .logo-container { display: flex; align-items: center; text-decoration: none; gap: 0.75rem; }
+  .logo-container img { height: 70px; }
+  .header-icons { display: flex; align-items: center; gap: 1rem; }
+  .header-icons a { font-size: 1.5rem; color: #4a3f35; text-decoration: none; }
+  .my-account-btn {
+    font-size: 0.78rem !important;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid #f1dec7;
+    background: #fff6ea;
+    color: #6a5138 !important;
+  }
+  .my-account-btn.active {
+    background: #f08c3d;
+    border-color: #f08c3d;
+    color: white !important;
+  }
+  nav { display: flex; gap: 1.2rem; padding: 1rem 2rem; background: white; border-bottom: 1px solid #f0e2d0; }
+  nav a { color: #4a3f35; text-decoration: none; font-weight: 600; }
+  nav a.active { color: #6c4fbb; }
+  .account-panel {
+    max-width: 1080px;
+    margin: 2.5rem auto;
+    padding: 0 1.5rem;
+    display: grid;
+    gap: 1.5rem;
+  }
+  .panel-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 18px 40px rgba(45, 42, 36, 0.12);
+    border: 1px solid #f0e2d0;
+    padding: 1.8rem;
+  }
+  .panel-card h1 { margin-bottom: 0.6rem; font-size: 2rem; }
+  .panel-card p { color: #6d6458; }
+  .account-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    padding: 1.75rem;
+    border: 1px solid #f0e2d0;
+    border-radius: 20px;
+    background: #fbf6ef;
+    margin-top: 1.5rem;
+  }
+  .account-card div {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.9rem 1rem;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.72);
+  }
+  .account-card span { color: #7b6e60; }
+  .account-card strong { color: #4a3f35; }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    color: #4a3f35;
+  }
+  .purchase-history-list,
+  .admin-orders-list { display: grid; gap: 1rem; }
+  .purchase-card,
+  .admin-order-card {
+    padding: 1.25rem 1.2rem;
+    background: #fff7ed;
+    border: 1px solid #f0e2d0;
+    border-radius: 20px;
+  }
+  .purchase-header,
+  .admin-order-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.9rem;
+  }
+  .purchase-id, .purchase-date { font-size: 0.95rem; color: #6d6458; }
+  .purchase-message {
+    margin-bottom: 0.9rem;
+    color: #6d6458;
+    background: rgba(255, 255, 255, 0.72);
+    border-radius: 16px;
+    padding: 0.8rem 0.95rem;
+  }
+  .purchase-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid #f0e2d0;
+  }
+  .purchase-item:last-child { border-bottom: none; }
+  .purchase-footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-top: 0.9rem;
+  }
+  .purchase-total { font-weight: 700; color: #f07b3f; }
+  .track-order-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7rem 1rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 700;
+    color: #4a3f35;
+    border: 1px solid #e7d5c1;
+    background: white;
+    cursor: pointer;
+  }
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 700;
+  }
+  .status-received { background: #fff1df; color: #a95d17; }
+  .status-preparing { background: #fff4d7; color: #9a6a00; }
+  .status-shipping { background: #e8f3ff; color: #1c5d99; }
+  .status-delivered { background: #e8f7ed; color: #237447; }
+  .empty-purchases {
+    padding: 1.3rem;
+    background: #fff3e8;
+    border: 1px dashed #f4c9a1;
+    color: #6d6458;
+    border-radius: 18px;
+    text-align: center;
+  }
+  .admin-order-head strong { display: block; font-size: 1rem; margin-bottom: 0.3rem; }
+  .admin-order-head span { color: #736657; }
+  .admin-order-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    color: #7b6e60;
+    font-size: 0.92rem;
+    margin-bottom: 0.85rem;
+  }
+  .admin-order-items {
+    color: #5f5346;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  .admin-order-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  .admin-status-select,
+  .admin-save-btn,
+  .admin-delete-btn,
+  .clear-history-btn,
+  .logout-btn {
+    padding: 0.95rem 1rem;
+    border-radius: 14px;
+    font-size: 0.98rem;
+    font-weight: 700;
+  }
+  .admin-status-select {
+    border: 1px solid #dec8af;
+    background: white;
+    color: #4a3f35;
+    min-width: 220px;
+  }
+  .admin-save-btn,
+  .admin-delete-btn,
+  .clear-history-btn,
+  .logout-btn {
+    border: none;
+    cursor: pointer;
+  }
+  .admin-save-btn { background: #6c4fbb; color: white; }
+  .admin-delete-btn { background: #c0392b; color: white; }
+  .clear-history-btn { background: #6c4fbb; color: white; }
+  .logout-btn { background: #f07b3f; color: white; }
+  .account-actions { display: grid; gap: 0.9rem; }
+  .edit-profile-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 1rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    border: 1px solid #e0ceba;
+    background: white;
+    color: #6a5138;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .edit-profile-btn:hover { background: #fff6ea; border-color: #f5a623; }
+  .edit-profile-form {
+    display: none;
+    margin-top: 1.25rem;
+    padding: 1.4rem;
+    background: #fff8ef;
+    border: 1px solid #f3dfc3;
+    border-radius: 18px;
+    display: none;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  .edit-profile-form.open { display: grid; }
+  .edit-field { display: flex; flex-direction: column; gap: 0.35rem; }
+  .edit-field label { font-size: 0.85rem; font-weight: 700; color: #7e6b57; }
+  .edit-field input {
+    border: 1px solid #e8d8c7;
+    border-radius: 12px;
+    padding: 0.7rem 0.85rem;
+    font-size: 0.97rem;
+    font-family: inherit;
+    color: #3c3027;
+    background: #fffdfb;
+  }
+  .edit-field input:focus { outline: none; border-color: #f7b05e; box-shadow: 0 0 0 3px rgba(247,176,94,0.14); }
+  .edit-field small { color: #9e8e7e; font-size: 0.8rem; }
+  .edit-form-actions { grid-column: 1 / -1; display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .edit-save-btn {
+    padding: 0.75rem 1.4rem; border-radius: 14px; border: none;
+    background: #6c4fbb; color: white; font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  .edit-cancel-btn {
+    padding: 0.75rem 1.4rem; border-radius: 14px; border: 1px solid #ddd0c3;
+    background: white; color: #4a3f35; font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  .edit-profile-msg { grid-column: 1 / -1; font-size: 0.9rem; font-weight: 700; padding: 0.6rem 0.8rem; border-radius: 10px; display: none; }
+  .edit-profile-msg.ok { background: #e8f7ed; color: #237447; display: block; }
+  .edit-profile-msg.err { background: #fdecea; color: #b22222; display: block; }
+  footer { margin-top: 4rem; text-align: center; color: #7e7362; font-size: 0.9rem; padding: 2rem 1rem; }
+  @media (max-width: 680px) {
+    header, nav { padding: 1rem 1.2rem; }
+    .account-panel { padding: 0 1rem; }
+    .purchase-item,
+    .purchase-footer-row,
+    .admin-order-head { flex-direction: column; }
+    .admin-status-select { width: 100%; }
+    .admin-save-btn,
+    .admin-delete-btn,
+    .track-order-link { width: 100%; text-align: center; }
+  }

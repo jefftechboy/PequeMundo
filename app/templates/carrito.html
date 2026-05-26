@@ -1,0 +1,194 @@
+{% load static %}
+
+{% include 'base/navbar.html' %}
+
+{% block content %}
+
+<main class="cart-container">
+
+    <div class="cart-header">
+
+        <h1>
+            <i class="fas fa-shopping-basket"></i>
+            Mi carrito
+        </h1>
+
+    </div>
+
+    <div id="cartContent">
+
+        <!-- CARRITO VACÍO -->
+        {% if not detalles %}
+
+        <div class="empty-cart">
+
+            <i class="fas fa-cart-shopping"></i>
+
+            <h3>
+                Tu carrito está vacío
+            </h3>
+
+            <p>
+                ¡Agrega muebles hermosos para los más pequeños!
+            </p>
+
+            <a
+                href="{% url 'ver_carrito' %}"
+                class="btn-secondary"
+                style="margin-top: 1rem; display: inline-block;"
+            >
+                <i class="fas fa-store"></i>
+                Explorar productos
+            </a>
+
+        </div>
+
+        {% else %}
+
+        <!-- ITEMS -->
+        <div id="cartItemsList" class="cart-items">
+
+            {% for item in detalles %}
+
+            <div class="cart-item">
+
+                <!-- IMAGEN -->
+                <div class="cart-item-image">
+
+                    <img width="300px"
+                        src="{{ item.idMueble.foto.url }}"
+                        alt="{{ item.idMueble.nombre }}"
+                    >
+
+                </div>
+
+                <!-- INFO -->
+                <div class="cart-item-info">
+
+                    <h3>
+                        {{ item.idMueble.nombre }}
+                    </h3>
+
+                    <p>
+                        {{ item.idMueble.descripcion }}
+                    </p>
+
+                    <div class="cart-item-price">
+
+                        <span>
+                            Precio:
+                            ${{ item.idMueble.precio }}
+                        </span>
+
+                        <span>
+                            Cantidad:
+                            {{ item.cantidad }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <!-- SUBTOTAL -->
+                <div class="cart-item-subtotal">
+
+                    <strong>
+                        ${{ item.subtotal }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        <!-- RESUMEN -->
+        <div id="cartSummary">
+
+            <div class="cart-summary">
+
+                <div class="summary-row">
+
+                    <span>
+                        Subtotal
+                    </span>
+
+                    <span>
+                        ${{ carrito.total }}
+                    </span>
+
+                </div>
+
+                <div class="summary-row">
+
+                    <span>
+                        Envío
+                    </span>
+
+                    <span>
+                        $0
+                    </span>
+
+                </div>
+
+                <div class="summary-row total">
+
+                    <span>
+                        <strong>Total</strong>
+                    </span>
+
+                    <span>
+                        ${{ carrito.total }}
+                    </span>
+
+                </div>
+
+                <!-- BOTONES -->
+                <div class="cart-actions">
+
+                    <a
+                        href="{% url 'IDpaginaProductos' %}"
+                        class="btn-secondary"
+                    >
+                        <i class="fas fa-arrow-left"></i>
+                        Seguir comprando
+                    </a>
+
+                    <!-- FINALIZAR -->
+                    <form
+                        method="POST"
+                        action="{% url 'finalizar_compra' %}"
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="btn-primary"
+                        >
+
+                            <i class="fas fa-check-circle"></i>
+
+                            Finalizar compra
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</main>
+
+{% endblock %}
+
+{% include 'base/footer.html' %}

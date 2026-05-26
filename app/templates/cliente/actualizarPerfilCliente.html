@@ -1,0 +1,117 @@
+{% load static %}
+
+{% include 'base/navbar.html' %}
+
+{% block content %}
+<main class="account-panel">
+
+    <section class="panel-card">
+
+        <p id="accountIntro">
+            Bienvenido a tu espacio personal. Aquí puedes actualizar tu información
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="account-card">
+
+                <div>
+                    <span>Nombre</span>
+
+                    <input 
+                        type="text"
+                        name="nombre"
+                        id="nombre"
+                        value="{{ cuentaCliente.nombre }}"
+                        placeholder="Nombre"
+                    >
+                </div>
+
+                <div>
+                    <span>Correo</span>
+
+                    <input 
+                        type="email"
+                        name="correo"
+                        id="correo"
+                        value="{{ cuentaCliente.correo }}"
+                        placeholder="correo@ejemplo.com"
+                    >
+                </div>
+
+                <div>
+                    <span>Rut</span>
+
+                    <input 
+                        type="text"
+                        name="rut"
+                        id="rut"
+                        value="{{ cuentaCliente.rut }}"
+                        placeholder="xx.xxx.xxx-x"
+                    >
+                </div>
+
+                <div>
+                    <span>Comuna</span>
+
+                    <select name="comuna" id="comuna">
+
+                        {% for c in comuna %}
+                            <option 
+                                value="{{ c.id }}"
+                                {% if cuentaCliente.comuna.id == c.id %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ c.descripcion }}
+                            </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <div style="width:100%;">
+                    <span>Direccion</span>
+
+                    <input 
+                        type="text"
+                        name="direccion"
+                        id="direccion"
+                        value="{{ cuentaCliente.direccion }}"
+                        placeholder="Direccion"
+                    >
+                </div>
+                <div style="width:100%;">
+                    <span>Telefono</span>
+
+                    <input 
+                        type="text"
+                        name="telefono"
+                        id="telefono"
+                        value="{{ cuentaCliente.telefono }}"
+                        placeholder="Telefono"
+                    >
+                </div>
+
+                <input 
+                    type="hidden"
+                    name="usuario_cuenta"
+                    value="{{ user.id }}"
+                >
+
+            </div>
+
+            <button class="edit-profile-btn" id="editProfileBtn" type="submit">
+                Actualizar datos
+            </button>
+
+        </form>
+
+    </section>
+
+</main>
+
+{% endblock %}
+
+{% include 'base/footer.html' %}

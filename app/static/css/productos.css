@@ -1,0 +1,534 @@
+/* =========================
+   MAIN
+========================= */
+
+.products-container{
+
+    width: 100%;
+
+    max-width: 1600px;
+
+    margin: 2rem auto;
+
+    padding: 0 2rem;
+
+    box-sizing: border-box;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.products-header{
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 1rem;
+
+    margin-bottom: 2.5rem;
+}
+
+.products-header h1{
+
+    font-size: 2.3rem;
+
+    font-weight: 900;
+
+    color: #3b2a22;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+.products-header h1 i{
+
+    color: #f5a623;
+
+    font-size: 2rem;
+}
+
+/* =========================
+   SEARCH
+========================= */
+
+.search-group{
+
+    display: flex;
+
+    gap: 0.75rem;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+}
+
+.search-input{
+
+    border: 1px solid #f0e2d0;
+
+    border-radius: 999px;
+
+    padding: 0.85rem 1.2rem;
+
+    width: 260px;
+
+    background: #fffdf7;
+
+    transition: 0.2s ease;
+
+    color: #3b2a22;
+
+    font-size: 15px;
+}
+
+.search-input:focus{
+
+    outline: none;
+
+    border-color: #f5a623;
+
+    box-shadow:
+    0 0 0 4px rgba(245,166,35,0.10);
+}
+
+.btn-clear-search{
+
+    background: white;
+
+    border: 1px solid #f0e2d0;
+
+    padding: 0.7rem 1.2rem;
+
+    border-radius: 40px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+
+    color: #6b5a4c;
+}
+
+.btn-clear-search:hover{
+
+    background: #f5a623;
+
+    color: white;
+
+    border-color: #f5a623;
+}
+
+/* =========================
+   FILTROS
+========================= */
+
+.filter-section{
+
+    display: flex;
+
+    gap: 0.8rem;
+
+    flex-wrap: wrap;
+}
+
+.filter-btn{
+
+    background: white;
+
+    border: 1px solid #f0e2d0;
+
+    padding: 0.7rem 1.3rem;
+
+    border-radius: 40px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+
+    color: #6b5a4c;
+}
+
+.filter-btn:hover,
+.filter-btn.active{
+
+    background: #f5a623;
+
+    color: white;
+
+    border-color: #f5a623;
+}
+
+/* =========================
+   GRID
+========================= */
+
+.productos-grid{
+
+    display: grid;
+
+    grid-template-columns:
+    repeat(4, 1fr);
+
+    gap: 2rem;
+
+    width: 100%;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.card{
+
+    background: white;
+
+    border-radius: 32px;
+
+    padding: 1.5rem;
+
+    transition: 0.3s ease;
+
+    box-shadow:
+    0 8px 20px rgba(0,0,0,0.04);
+
+    border: 1px solid #fff0e2;
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+.card:hover{
+
+    transform: translateY(-8px);
+
+    box-shadow:
+    0 20px 35px -12px rgba(0,0,0,0.12);
+
+    border-color: #ffe0c4;
+}
+
+/* =========================
+   BADGE
+========================= */
+
+.card-badge{
+
+    position: absolute;
+
+    top: 1rem;
+
+    right: 1rem;
+
+    background: #f5a623;
+
+    color: white;
+
+    font-size: 0.72rem;
+
+    font-weight: bold;
+
+    padding: 0.25rem 0.8rem;
+
+    border-radius: 20px;
+
+    z-index: 2;
+}
+
+.card-badge.hot{
+
+    background: #e67e22;
+}
+
+/* =========================
+   IMAGE
+========================= */
+
+.card img{
+
+    width: 100%;
+
+    aspect-ratio: 1 / 1;
+
+    object-fit: cover;
+
+    border-radius: 24px;
+
+    margin-bottom: 1rem;
+
+    background: #f9f0e6;
+
+    transition: 0.3s ease;
+}
+
+.card:hover img{
+
+    transform: scale(1.03);
+}
+
+/* =========================
+   TITULO
+========================= */
+
+.card h3{
+
+    font-size: 1.5rem;
+
+    font-weight: 800;
+
+    margin: 0.6rem 0 0.4rem;
+
+    color: #3b2a22;
+}
+
+/* =========================
+   PRECIO
+========================= */
+
+.price{
+
+    font-size: 2rem;
+
+    font-weight: 900;
+
+    color: #f5a623;
+
+    margin: 0.5rem 0 1rem;
+}
+
+/* =========================
+   CANTIDAD
+========================= */
+
+.cantidad-container{
+
+    margin-bottom: 1rem;
+}
+
+.cantidad-container label{
+
+    display: block;
+
+    margin-bottom: 0.5rem;
+
+    color: #6d5848;
+
+    font-weight: 600;
+}
+
+.cantidad-input{
+
+    width: 100%;
+
+    padding: 0.7rem;
+
+    border-radius: 12px;
+
+    border: 1px solid #eadcc7;
+
+    background: #fffdf8;
+
+    font-size: 15px;
+}
+
+.cantidad-input:focus{
+
+    outline: none;
+
+    border-color: #f5a623;
+}
+
+/* =========================
+   BOTONES
+========================= */
+
+.card-actions{
+
+    display: flex;
+
+    gap: 0.8rem;
+
+    margin-top: 1rem;
+}
+
+.btn-buy{
+
+    flex: 1;
+
+    background: linear-gradient(
+        105deg,
+        #f9a826,
+        #ffbb5c
+    );
+
+    border: none;
+
+    padding: 0.9rem;
+
+    border-radius: 40px;
+
+    font-weight: 700;
+
+    font-size: 0.95rem;
+
+    color: white;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+}
+
+.btn-buy:hover{
+
+    transform: scale(1.03);
+
+    box-shadow:
+    0 6px 16px rgba(249,168,38,0.4);
+}
+
+.btn-detail{
+
+    background: white;
+
+    border: 1px solid #f0e2d0;
+
+    padding: 0.9rem;
+
+    border-radius: 40px;
+
+    font-weight: 600;
+
+    color: #b28b66;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.btn-detail:hover{
+
+    background: #fff4e7;
+
+    border-color: #f5a623;
+
+    color: #f5a623;
+}
+
+/* =========================
+   PAGINACION
+========================= */
+
+.pagination-custom{
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 1rem;
+
+    margin-top: 3rem;
+
+    flex-wrap: wrap;
+}
+
+.page-btn-custom{
+
+    background: white;
+
+    border: 1px solid #f0e2d0;
+
+    color: #6b5a4c;
+
+    padding: 0.8rem 1.3rem;
+
+    border-radius: 40px;
+
+    text-decoration: none;
+
+    font-weight: 700;
+
+    transition: 0.2s ease;
+}
+
+.page-btn-custom:hover{
+
+    background: #f5a623;
+
+    color: white;
+
+    border-color: #f5a623;
+}
+
+.page-number-custom{
+
+    font-weight: 700;
+
+    color: #5b4537;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width: 1300px){
+
+    .productos-grid{
+
+        grid-template-columns:
+        repeat(3, 1fr);
+    }
+}
+
+@media(max-width: 950px){
+
+    .productos-grid{
+
+        grid-template-columns:
+        repeat(2, 1fr);
+    }
+}
+
+@media(max-width: 650px){
+
+    .products-header{
+
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    .productos-grid{
+
+        grid-template-columns:
+        repeat(1, 1fr);
+    }
+
+    .search-input{
+
+        width: 100%;
+    }
+}

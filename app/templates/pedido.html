@@ -1,0 +1,107 @@
+{% load static %}
+
+{% include 'base/navbar.html' %}
+
+{% block content %}
+
+<main class="detalle-page-custom">
+
+    <!-- CONTENEDOR SCROLL -->
+    <div class="historial-container-custom">
+
+        {% for compra in comprasCliente %}
+            {% if compra.idCliente.usuario_cuenta == user.id %}
+                <!-- CARD -->
+                <section class="pedido-card-custom">
+
+                    <!-- HEADER -->
+                    <div class="pedido-header-custom">
+
+                        <h2 class="pedido-title-custom">
+                            Pedido realizado
+                        </h2>
+
+                        <span class="pedido-date-custom">
+                            {{ compra.fecha }}
+                        </span>
+
+                    </div>
+
+                    <!-- BODY -->
+                    <div class="pedido-body-custom">
+                                {% for detalle in detallesComprasCliente %}
+                                    {% if detalle.idCompra.idCompra == compra.idCompra %}
+                                        <!-- ITEM -->
+                                        <div class="pedido-item-custom">
+                
+                                            <!-- IZQUIERDA -->
+                                            <div class="pedido-left-custom">
+                
+                                                <!-- FOTO -->
+                                                <div class="pedido-img-container-custom">
+                
+                                                    <img
+                                                        src="{{ detalle.idMueble.foto.url }}"
+                                                        alt="{{ detalle.idMueble.nombre }}"
+                                                        class="pedido-img-custom"
+                                                    >
+                
+                                                </div>
+                
+                                                <!-- INFO -->
+                                                <div class="pedido-info-custom">
+                
+                                                    <h3 class="pedido-producto-custom">
+                                                        {{ detalle.idMueble.nombre }}
+                                                    </h3>
+                
+                                                    <p class="pedido-descripcion-custom">
+                                                        {{ detalle.idMueble.descripcion }}
+                                                    </p>
+                
+                                                </div>
+                
+                                            </div>
+                
+                                            <!-- DERECHA -->
+                                            <div class="pedido-right-custom">
+                
+                                                <p class="pedido-cantidad-custom">
+                                                    Cantidad:
+                                                    <strong>{{ detalle.cantidad }}</strong>
+                                                </p>
+                
+                                                <p class="pedido-subtotal-custom">
+                                                    ${{ detalle.subtotal }}
+                                                </p>
+                
+                                            </div>
+                
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+
+                    </div>
+
+                    <!-- FOOTER -->
+                    <div class="pedido-footer-custom">
+
+                        <h3 class="pedido-total-custom">
+                            Total:
+                            <span>${{ compra.total }}</span>
+                        </h3>
+
+                    </div>
+
+                </section>
+
+            {% endif %}
+        {% endfor %}
+
+    </div>
+
+</main>
+
+{% endblock %}
+
+{% include 'base/footer.html' %}

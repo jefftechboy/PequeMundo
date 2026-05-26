@@ -1,0 +1,204 @@
+{% load static %}
+
+ 
+{% include 'gestiones/baseGestion/navbarGestion.html' %}
+
+
+        <!-- MAIN -->
+        <main class="main" id="contenido">
+
+            <!-- HERO -->
+            <section class="hero">
+
+                <article class="hero-card">
+
+                    <span class="eyebrow">
+                        Colección primavera
+                    </span>
+
+                    <h3>
+                        Administra muebles infantiles con una interfaz tierna y profesional.
+                    </h3>
+
+                    <p>
+                        Este diseño usa el estilo visual de tus imágenes:
+                        personajes suaves, tonos amarillos cálidos,
+                        fondo claro y módulos simples para revisar inventario,
+                        ventas y tareas del día.
+                    </p>
+
+                    <div class="hero-actions">
+
+                        <button class="btn btn-primary" type="button">
+                            Ver inventario
+                        </button>
+
+                        <button class="btn btn-secondary" type="button">
+                            Exportar reporte
+                        </button>
+
+                    </div>
+
+                </article>
+
+                <!-- TARJETA DERECHA -->
+                <article class="hero-mini hero-card">
+
+                    <div class="hero-mini-top">
+
+                        <span class="eyebrow">
+                            Producto ícono
+                        </span>
+
+                        <h3 style="font-size: var(--text-lg); max-width: 18ch;">
+                            {{ mueble_mas_vendido }} ({{ mueble_mas_vendido_cantidad }}) con mayores ventas.
+                        </h3>
+
+                        <p style="font-size: var(--text-sm); color: var(--color-text-muted);">
+                            Visual tomado de tu identidad para reforzar el catálogo principal.
+                        </p>
+
+                    </div>
+
+                    <img src="{{ mueble_mas_vendido.foto.url }}"
+                        alt="Imagen decorativa PequeMundo">
+                </article>
+
+            </section>
+
+            <!-- STATS -->
+            <section class="stats" aria-label="Indicadores principales">
+
+                <article class="stat">
+                    <span class="stat-label">Muebles totales</span>
+                    <strong class="stat-value">{{ cantidad_muebles }}</strong>
+                </article>
+
+                <article class="stat">
+                    <span class="stat-label">Muebles disponibles</span>
+                    <strong class="stat-value">{{ cantidad_muebles_stock }}</strong>
+                </article>
+
+                <article class="stat">
+                    <span class="stat-label">Sin stock</span>
+                    <strong class="stat-value">{{ cantidad_muebles_Sinstock }}</strong>
+                    {% if cantidad_muebles_Sinstock > 1 %}
+                        <span class="delta warn">Requiere reposición</span>
+                    {% else %}
+                        <span class="delta warn">No se requiere reposición</span>
+                    {% endif %}
+                </article>
+
+                <article class="stat">
+                    <span class="stat-label">Ventas total</span>
+                    <strong class="stat-value">${{ cantidad_ingresosTotales }}  CPL</strong>
+                </article>
+
+            </section>
+
+            <!-- GRID -->
+            <section class="grid-2">
+
+                <!-- INVENTARIO -->
+                <article class="card">
+
+                    <div class="section-head">
+
+                        <div>
+                            <h3>Inventario general</h3>
+
+                            <p>
+                                Vista rápida del catálogo con foco en disponibilidad.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="overflow-x:auto;">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Precio</th>
+                                    <th>categoria</th>
+                                    <th>Stock</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <!-- Visualizacion productos -->
+                                 {% for x in muebles %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ x.nombre }}</strong>
+                                        </td>
+    
+                                        <td>$ {{ x.precio }}</td>
+                                        <td>{{ x.categoria_mueble.descripcion }}</td>
+    
+                                        <td>{{ x.cantidad }}</td>
+    
+                                        <td>
+                                            {% if x.disponiblidad.descripcion == "En stock" and x.cantidad > 0 %}
+                                                <span class="tag stock">
+                                                    {{ x.disponiblidad }}
+                                                </span>
+                                            {% else %}
+                                                <span class="tag stock" style="background-color: rgb(216, 102, 102);color:white">
+                                                    {{ x.disponiblidad }}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                 {% endfor %}
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </article>
+
+                <!-- AVANCE -->
+                <article class="card">
+
+                    <div class="section-head">
+
+                        <div>
+                            <h3>Avance por línea</h3>
+
+                            <p>
+                                Seguimiento de metas comerciales por categoría.
+                            </p>
+                        </div>
+
+                    </div>
+                        {% for key, value in ventas_muebles.items %}
+                            <div class="progress-list">
+        
+                                <div class="progress-item" style="margin-top: 20px;">
+        
+                                    <header>
+                                        <span>{{ key }}</span>
+                                        <strong>$ {{ value }}</strong>
+                                    </header>
+        
+                                    <div class="bar">
+                                        <span style="width:100%"></span>
+                                    </div>
+        
+                                </div>
+        
+                            </div>
+                        {% endfor %}
+
+                </article>
+
+            </section>
+
+        </main>
+
+{% include 'gestiones/baseGestion/footerGestion.html' %}
+

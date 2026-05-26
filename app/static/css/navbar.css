@@ -1,0 +1,120 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+main {
+    flex: 1;
+}
+.imagenCarrito{
+  margin-left: 80%;
+  margin-bottom: 10px;
+  color: #f7b05e;
+}
+.textoCarrito{
+  margin-left: 68%;
+}
+.btnCuenta {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-radius: 999px;
+  border: 1px solid #f1dec7;
+  background: #fff6ea;
+  color: #6a5138;
+  margin-left: 10px;
+  width: 170px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.btnCuenta:hover {
+  transform: none;
+  color: #8b5a2b;
+  border-color: #f5a623;
+  background: #fff0db;
+}
+header {
+  display: flex;
+  align-items: center;
+  padding: 1rem 2.5rem;
+  background: white;
+  border-bottom: 1px solid #f0e2d0;
+  height: 100px;
+}
+header div:last-child {
+  display: flex;
+  padding-right: 50px;
+  align-items: center;
+}
+header a {
+  text-decoration: none;
+  font-size: 1.6rem;
+  color: #4a3f35;
+  transition: 0.2s;
+  position: relative;
+}
+header a:hover {
+  color: #f7b05e;
+  transform: scale(1.05);
+}
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-decoration: none;
+  cursor: pointer;
+}
+nav {
+  background: white;
+  padding: 0.7rem 2.5rem;
+  display: flex;
+  gap: 2rem;
+  border-bottom: 1px solid #f0e2d0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+nav a {
+  text-decoration: none;
+  font-weight: 600;
+  color: #5a4a3a;
+  font-size: 1rem;
+  padding: 0.3rem 0;
+  border-bottom: 2px solid transparent;
+  transition: 0.2s;
+}
+
+nav a:hover, nav a.active {
+  color: #f5a623;
+  border-bottom-color: #f5a623;
+}
+@media (max-width: 800px) {
+  header {
+    padding: 1rem 1.5rem;
+  }
+  nav {
+    padding: 0.6rem 1.5rem;
+    gap: 1.3rem;
+    flex-wrap: wrap;
+  }
+}
+
+  .promo-bar {
+    background: linear-gradient(90deg, #6c4fbb, #5fa8f3);
+    color: white;
+    text-align: center;
+    padding: 0.6rem 1rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+  .promo-bar i { margin-right: 6px; }
+
+/*ACA TERMINA EL CSS BASE*/
+

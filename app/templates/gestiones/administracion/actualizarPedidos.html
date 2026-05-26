@@ -1,0 +1,117 @@
+{% load static %}
+
+{% include 'gestiones/baseGestion/navbarGestion.html' %}
+
+        <!-- MAIN -->
+        <main class="main" id="contenido">
+            <style>
+                .tabla-compras {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+
+                /* SOLO encabezado */
+                .tabla-compras thead {
+                    background-color: #d8d8d8;
+                }
+
+                .tabla-compras thead th {
+                    padding: 15px;
+                    text-align: left;
+                    font-weight: bold;
+                }
+
+                /* filas normales SIN líneas */
+                .tabla-compras tbody tr {
+                    background: transparent;
+                }
+
+                .tabla-compras tbody td {
+                    padding: 20px 15px;
+                    border: none;
+                }
+
+                /* botones */
+                .btn-editar {
+                    background: #f5b800;
+                    padding: 10px 20px;
+                    border-radius: 25px;
+                    text-decoration: none;
+                    color: black;
+                }
+
+                .btn-ver {
+                    background: #ffd84d;
+                    padding: 10px 20px;
+                    border-radius: 25px;
+                    text-decoration: none;
+                    color: black;
+                    border: 1px solid #0066ff;
+                }
+            </style>
+            <table class="tabla-compras" style="color: black;">
+
+                <thead>
+                    <tr>
+                        <th>N° Compra</th>
+                        <th>Cliente</th>
+                        <th>Mueble</th>
+                        <th>Fecha Compra</th>
+                        <th>Cantidad</th>
+                        <th>Total</th>
+                        <th>Estado de compra</th>
+                        <th>EDITAR</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="text" name="idDetalle" id="idDetalle" value="{{detalleCompra.idDetalle  }}" hidden >
+                        <input type="text" name="idCompra" id="idCompra" value="{{detalleCompra.idCompra.idCompra }}" hidden>
+                        <input type="text" name="idMueble" id="idMueble" value="{{detalleCompra.idMueble.id }}" hidden>
+                        <input type="text" name="cantidad" id="cantidad" value="{{detalleCompra.cantidad }}" hidden>
+                        <input type="text" name="subtotal" id="subtotal" value="{{detalleCompra.subtotal }}" hidden>
+                        <tr>
+                            <td>{{ detalleCompra.idCompra.idCompra }}</td>
+                            <td>{{ detalleCompra.idCompra.idCliente.nombre }}</td>
+                            <td>{{ detalleCompra.idMueble.nombre }}</td>
+                            <td>{{ detalleCompra.idCompra.fecha }}</td>
+                            <td>{{ detalleCompra.cantidad }}</td>
+                            <td>${{ detalleCompra.subtotal }}</td>
+                            <td>
+                                <select name="idEsProdCom" id="idEsProdCom"  >
+                                    {% for x in estadosDeCompras %}
+
+                                        <option 
+                                            value="{{ x.idestadocompra }}"
+                                            {% if x.idestadocompra == detalleCompra.idEsProdCom.idestadocompra %}
+                                                selected
+                                            {% endif %}
+                                        >
+
+                                            {{ x.descripcion }}
+
+                                        </option>
+                                    {% endfor %}
+
+                                </select>                            
+                            </td>
+                            <td>
+                                <!-- BOTON MODAL -->
+                                <button 
+                                    type="submit"
+                                    class="btn-ver"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalCompra{{ x.idCompra }}"
+                                >
+                                    EDITAR
+                                </button>
+                            </td>
+                        </tr>
+                    </form>
+                </tbody>
+            </table>
+        </main>
+{% include 'gestiones/baseGestion/footerGestion.html' %}
+

@@ -1,0 +1,142 @@
+{% load static %}
+
+{% include 'gestiones/baseGestion/navbarGestion.html' %}
+
+        <!-- MAIN -->
+        <main class="main" id="contenido">
+            <style>
+                .tabla-compras {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+
+                /* SOLO encabezado */
+                .tabla-compras thead {
+                    background-color: #d8d8d8;
+                }
+
+                .tabla-compras thead th {
+                    padding: 15px;
+                    text-align: left;
+                    font-weight: bold;
+                }
+
+                /* filas normales SIN líneas */
+                .tabla-compras tbody tr {
+                    background: transparent;
+                }
+
+                .tabla-compras tbody td {
+                    padding: 20px 15px;
+                    border: none;
+                }
+
+                /* botones */
+                .btn-editar {
+                    background: #f5b800;
+                    padding: 10px 20px;
+                    border-radius: 25px;
+                    text-decoration: none;
+                    color: black;
+                }
+
+                .btn-ver {
+                    background: #ffd84d;
+                    padding: 10px 20px;
+                    border-radius: 25px;
+                    text-decoration: none;
+                    color: black;
+                    border: 1px solid #0066ff;
+                }
+            </style>
+
+            <table class="tabla-compras">
+
+                <thead>
+                    <tr>
+                        <th>N° Compra</th>
+                        <th>Cliente</th>
+                        <th>Total Compra</th>
+                        <th>Fecha Compra</th>
+                        <th>Visualizar</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for x in compras %}
+                    <tr>
+                        <td>{{ x.idCompra }}</td>
+                        <td>{{ x.idCliente.nombre }}</td>
+                        <td>${{ x.total }}</td>
+                        <td>{{ x.fecha }}</td>
+
+                        <td>
+                            <!-- BOTON MODAL -->
+                            <button 
+                                type="button"
+                                class="btn-ver"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalCompra{{ x.idCompra }}"
+                            >
+                                Ver
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- MODAL -->
+                    <div class="modal fade" id="modalCompra{{ x.idCompra }}"  tabindex="-1" aria-hidden="true" style="color: black;">
+                        <div class="modal-dialog modal-xl" >
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        Detalle Compra {{ x.idCompra }}
+                                    </h5>
+
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                {% for c in detalleCompras %}
+                                    {% if c.idCompra.idCompra == x.idCompra %}
+                                        <div class="row" style="margin-top: 10px;">
+                                            <div class="col-3">
+                                                <strong>Cliente:</strong> {{ c.idCompra.idCliente.nombre }}
+                                            </div>
+                                            <div class="col-3">
+                                                <strong>Mueble:</strong> {{ c.idMueble.nombre }}
+                                            </div>
+                                            <div class="col-2">
+                                                <strong>Total:</strong> {{ c.subtotal }}
+                                            </div>
+                                            <div class="col-2">
+                                                <strong>Total:</strong> {{ c.idEsProdCom.descripcion }}
+                                            </div>
+                                            <!-- {% url 'IDpaginaActualizarCompras' c.idDetalle  %} -->
+                                            <div class="col-1">
+                                                <a href="{% url 'IDpaginaActualizarCompras' c.idDetalle  %}">
+                                                    <button class="btn btn-warning" >Editar</button>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    {% endif %} 
+
+                                {% endfor %}
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        Cerrar
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </main>
+{% include 'gestiones/baseGestion/footerGestion.html' %}
+

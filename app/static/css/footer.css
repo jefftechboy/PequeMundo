@@ -1,0 +1,25 @@
+footer {
+  background: #1f2a2e;
+  color: #ddd9ce;
+  padding: 1rem 1rem;
+  text-align: center;
+  border-radius: 32px 32px 0 0;
+  margin-top: 1rem;
+}
+
+footer p {
+  font-size: 1rem;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  margin-bottom: 3px;
+}
+
+footer i {
+  margin-right: 6px;
+  margin-left: 6px;
+  color: #ffbc6e;
+}

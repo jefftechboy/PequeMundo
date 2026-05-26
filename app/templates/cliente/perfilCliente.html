@@ -1,0 +1,132 @@
+{% load static %}
+
+{% include 'base/navbar.html' %}
+    {% block content %}
+        <main class="account-panel">
+        <section class="panel-card">
+            <h1>Mi cuenta</h1>
+            {% if user.id == cuentaCliente.usuario_cuenta %}
+                <p id="accountIntro">Bienvenido a tu espacio personal. Aquí puedes revisar tu información </p>
+                <div class="account-card">
+
+                        <div>
+                            <span>Nombre</span>
+                            <span>{{ cuentaCliente.nombre }}</span>
+                        </div>
+
+                        <div>
+                            <span>Correo</span>
+                            <span>{{ cuentaCliente.correo }}</span>
+                        </div>
+
+                        <div>
+                            <span>RUT</span>
+                            <span>{{ cuentaCliente.rut }}</span>
+                        </div>
+
+                        <div>
+                            <span>Comuna</span>
+                            <span>{{ cuentaCliente.comuna.descripcion }}</span>
+                        </div>
+
+                        <div style="width:100%;">
+                            <span>Direccion</span>
+                            <span>{{ cuentaCliente.direccion }}</span>
+                        </div>
+                        <div style="width:100%;">
+                            <span>Telefono</span>
+                            <span>{{ cuentaCliente.telefono }}</span>
+                        </div>
+                </div>
+                <a href="{% url 'IDactualizarPerfilCliente' cuentaCliente.id %}">
+                    <button type="button">
+                        Actualizar
+                    </button>
+                </a>
+            {% else %}
+                <p id="accountIntro">Bienvenido a tu espacio personal. Aquí puedes ingresar tu información </p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="account-card">
+
+                        <div>
+                            <span>Nombre</span>
+                            <input 
+                                type="text"
+                                name="nombre"
+                                id="nombre"
+                                value="{{ formularioPerfilCliente.nombre.value|default:'' }}"
+                                placeholder="Nombre"
+                            >
+                        </div>
+
+                        <div>
+                            <span>Correo</span>
+                            <input 
+                                type="email"
+                                name="correo"
+                                id="correo"
+                                value="{{ formularioPerfilCliente.correo.value|default:'' }}"
+                                placeholder="correo@ejemplo.com"
+                            >
+                        </div>
+
+                        <div>
+                            <span>Rut</span>
+                            <input 
+                                type="text"
+                                name="rut"
+                                id="rut"
+                                value="{{ formularioPerfilCliente.rut.value|default:'' }}"
+                                placeholder="xx.xxx.xxx-x"
+                            >
+                        </div>
+
+                        <div>
+                            <span>Comuna</span>
+
+                            <select name="comuna" id="comuna">
+                                <option value="">Selecciona tu comuna</option>
+
+                                {% for c in comuna %}
+                                    <option 
+                                        value="{{ c.id }}"
+                                        {% if formularioPerfilCliente.comuna.value == c.id %}selected{% endif %}
+                                    >
+                                        {{ c.descripcion }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div style="width:100%;">
+                            <span>Direccion</span>
+
+                            <input 
+                                type="text"
+                                name="direccion"
+                                id="direccion"
+                                value="{{ formularioPerfilCliente.direccion.value|default:'' }}"
+                                placeholder="Direccion"
+                            >
+                        </div>
+
+                        <input 
+                            type="hidden"
+                            name="usuario_cuenta"
+                            value="{{ user.id }}"
+                        >
+
+                    </div>
+                    <button class="edit-profile-btn" id="editProfileBtn" type="submit">
+                        Ingresar datos
+                    </button>
+                </form>
+            {% endif %}
+
+
+        </main>
+    {% endblock %}
+
+
+{% include 'base/footer.html' %}

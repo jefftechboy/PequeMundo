@@ -1,0 +1,225 @@
+{% load static %}
+
+{% include 'base/navbar.html' %}
+
+{% block content %}
+
+<!-- =========================
+     PRODUCTOS
+========================= -->
+
+<main class="products-container">
+
+    <!-- HEADER -->
+    <div class="products-header">
+
+        <h1>
+            <i class="fas fa-cubes"></i>
+            Nuestra colección
+        </h1>
+
+        <!-- BUSCADOR -->
+        <div class="search-group">
+
+            <input
+                id="searchInput"
+                class="search-input"
+                type="search"
+                placeholder="Buscar productos..."
+                autocomplete="off"
+            >
+
+            <button
+                id="clearSearch"
+                class="btn-clear-search"
+                type="button"
+            >
+                Limpiar
+            </button>
+
+        </div>
+
+        <!-- FILTROS -->
+        <div class="filter-section">
+
+            <button
+                class="filter-btn active"
+                data-filter="all"
+            >
+                Todos
+            </button>
+
+            <button
+                class="filter-btn"
+                data-filter="dormitorio"
+            >
+                Dormitorio
+            </button>
+
+            <button
+                class="filter-btn"
+                data-filter="estudio"
+            >
+                Estudio
+            </button>
+
+            <button
+                class="filter-btn"
+                data-filter="deco"
+            >
+                Deco & Organización
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- GRID -->
+    <div id="productosGrid" class="productos-grid">
+
+        {% for producto in datosMuebles %}
+
+        <!-- CARD -->
+        <div class="card" data-id="{{ producto.id }}">
+
+            <!-- FORM -->
+            <form
+                method="POST"
+                action="{% url 'agregar_carrito' producto.id %}"
+            >
+
+                {% csrf_token %}
+
+                <!-- BADGE -->
+                <div class="card-badge hot">
+
+                    <i class="fas fa-fire"></i>
+
+                    {{ producto.estado }}
+
+                </div>
+
+                <!-- IMAGEN -->
+                <img
+                    src="{{ producto.foto.url }}"
+                    alt="{{ producto.nombre }}"
+                >
+
+                <!-- TITULO -->
+                <h3>{{ producto.nombre }}</h3>
+
+                <!-- PRECIO -->
+                <div class="price">
+
+                    ${{ producto.precio }}
+
+                </div>
+
+                <!-- CANTIDAD -->
+                <div class="cantidad-container">
+
+                    <label>Cantidad</label>
+
+                    <input
+                        type="number"
+                        name="cantidad"
+                        value="1"
+                        min="1"
+                        class="cantidad-input"
+                        required
+                    >
+
+                </div>
+
+                <!-- BOTONES -->
+                <div class="card-actions">
+
+                    <!-- COMPRAR -->
+                    <button
+                        type="submit"
+                        class="btn-buy"
+                    >
+
+                        <i class="fas fa-cart-plus"></i>
+
+                        Comprar
+
+                    </button>
+
+                    <!-- DETALLE -->
+                    <button
+                        type="button"
+                        class="btn-detail"
+                        data-bs-toggle="modal"
+                        data-bs-target="#exampleModal{{ producto.id }}"
+                    >
+
+                        <i class="fas fa-eye"></i>
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+        <!-- MODAL -->
+        <div
+            class="modal fade"
+            id="exampleModal{{ producto.id }}"
+            tabindex="-1"
+            aria-hidden="true"
+        >
+
+            <div class="modal-dialog">
+
+                <div class="modal-content">
+
+                    <div class="modal-header">
+
+                        <h1 class="modal-title fs-5">
+
+                            {{ producto.nombre }}
+
+                        </h1>
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+
+                    </div>
+
+                    <div class="modal-body">
+
+                        {{ producto.descripcion }}
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        ${{ producto.precio }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+        
+        {% endfor %}
+        
+      </div>
+      <div style="margin-top: 10%;">
+        {% include 'paginador.html' %}
+      </div>
+
+</main>
+
+
+{% endblock %}
+
+{% include 'base/footer.html' %}

@@ -1,0 +1,78 @@
+{% load static %}
+
+{% include 'base/navbar.html' %}
+
+<main>
+    {% block content %}
+    <!-- HERO mejorado visual y contenido -->
+    <section class="hero">
+        <div class="hero-text">
+            <h1>Muebles infantiles seguros <br> y con estilo nórdico</h1>
+            <p>Diseños pensados para su creatividad, confort y seguridad. Materiales ecológicos, bordes redondeados y diversión garantizada.</p>
+            <a href="{% url 'ver_carrito' %}" class="btn-primary" style="text-decoration: none;"> 
+                <i class="fas fa-gift"></i> Ver catálogo
+            </a>
+        </div>
+        <div class="hero-img">
+            <img src="../static/img/pequeMundo_icono.png" alt="Habitación infantil acogedora" style="object-fit: cover;">
+        </div>
+        </section>
+    
+        <!-- DESTACADOS con mejor presentación y precios realistas -->
+        <section class="destacados">
+        <h2><i class="fas fa-star" style="color:#f7b32b;"></i> Lo más querido <i class="fas fa-heart" style="color:#f7b32b;"></i></h2>
+        <div class="grid">
+            <div class="card" onclick="location.href='productos.php'">
+            <img src="https://cdnx.jumpseller.com/kidscool1/image/74894398/resize/540/540?1774003487" alt="Cama Montessori">
+            <h3>Cama Montessori</h3>
+            <p>$129.900</p>
+            <div style="font-size:0.8rem; color:#b98f62;">✨ Incluye base regulable</div>
+            </div>
+            <div class="card" onclick="location.href='productos.php'">
+            <img src="https://www.ikea.com/cl/es/images/products/flisat-escritorio-infantil-altura-regulable-verde__1447837_pe989277_s5.jpg?f=xl" alt="Escritorio Kids">
+            <h3>Escritorio Kids</h3>
+            <p>$84.900</p>
+            <div style="font-size:0.8rem; color:#b98f62;">📚 Altura ajustable</div>
+            </div>
+            <div class="card" onclick="location.href='productos.php'">
+            <img src="https://form.cl/cdn/shop/files/v-muk0310849102-1-cfb9ebd3-9e97-4188-bc3e-78f9a24dc837.jpg?v=1773172866&width=1200" alt="Repisa Infantil">
+            <h3>Repisa nube 3 en 1</h3>
+            <p>$49.900</p>
+            <div style="font-size:0.8rem; color:#b98f62;">☁️ Set organizador</div>
+            </div>
+        </div>
+        </section>
+    
+        <!-- BENEFICIOS con iconos reales y estilo mejorado -->
+        <section class="beneficios">
+        <div class="beneficio">
+            <i class="fas fa-truck-fast" style="font-size: 2rem; color:#f5a623; margin-bottom: 0.5rem; display: inline-block;"></i>
+            <h3>Envíos exprés</h3>
+            <p>3 a 5 días hábiles · Todo Chile</p>
+        </div>
+        <div class="beneficio">
+            <i class="fas fa-lock" style="font-size: 2rem; color:#f5a623; margin-bottom: 0.5rem;"></i>
+            <h3>Pago seguro</h3>
+            <p>Tarjetas / transferencia / WebPay</p>
+        </div>
+        <div class="beneficio">
+            <i class="fas fa-store" style="font-size: 2rem; color:#f5a623; margin-bottom: 0.5rem;"></i>
+            <h3>Retiro en tienda</h3>
+            <p>Las Condes & Vitacura · Sin costo</p>
+        </div>
+        </section>
+    
+        <!-- CTA dinámica con descuento motivacional -->
+        <section class="cta-section">
+        <h2>🌟 Transforma su habitación hoy  🌟</h2>
+        <p style="margin-bottom: 1rem; color:#624c38; font-weight: 500;">10% OFF en tu primera compra &nbsp;·&nbsp; Envío gratis sobre $75.000</p>
+        <a href="{% url 'ver_carrito' %}" class="btn-primary" style="text-decoration: none;"> 
+            <i class="fas fa-shopping-bag"></i> Ir a tienda
+        </a>
+    </section>
+    {% endblock %}
+</main>
+
+{% include 'base/footer.html' %}
+
+ 
