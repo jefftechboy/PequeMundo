@@ -23,9 +23,10 @@ urlpatterns = [
     # urls.py
 
     path('agregar-carrito/<int:id>/',agregar_carrito,name='agregar_carrito'),
-    path('agregar-carrito/<int:id>/',agregar_carrito,name='agregar_carrito'),
     path('carrito/',paginaCarrito,name='ver_carrito'),
     path('finalizar-compra/',finalizar_compra,name='finalizar_compra'),
+    path('eliminar-carrito/<int:id>/',eliminar_item_carrito,name='IDeliminarCarrito'
+),
 
     # GESTIONES
     path('paginaInicioGestiones/', paginaInicioGestiones,name='IDpaginaInicioGestiones'),

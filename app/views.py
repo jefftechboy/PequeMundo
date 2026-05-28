@@ -4,6 +4,7 @@ from .forms import *
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.models import User,Group
 from django.core.paginator import Paginator
+from django.contrib import messages
 
 # Create your views here.
 def index(request):
@@ -314,9 +315,36 @@ def agregar_carrito(request, id):
 
         carrito.total = total
         carrito.save()
+        messages.success(
+            request,
+            'Producto agregado al carrito correctamente'
+        )
+        return redirect('ver_carrito')
+    return redirect('ver_carrito')
+def eliminar_item_carrito(request, id):
+
+    detalle = detalleCompra.objects.get(idDetalle=id)
+
+    carrito = detalle.idCompra
+
+    # ELIMINAR SUBTOTAL DEL TOTAL
+    carrito.total -= detalle.subtotal
+
+    if carrito.total < 0:
+
+        carrito.total = 0
+
+    carrito.save()
+
+    # ELIMINAR ITEM
+    detalle.delete()
+
+    messages.success(
+        request,
+        'Producto eliminado del carrito'
+    )
 
     return redirect('ver_carrito')
-
 
 def finalizar_compra(request):
 
@@ -347,13 +375,30 @@ def finalizar_compra(request):
         # FINALIZAR COMPRA
         carrito.completada = True
 
+        # RESTAR STOCK
+        for detalle in carrito.detalles.all():
+
+            producto = detalle.idMueble
+
+            producto.cantidad -= detalle.cantidad
+            # SI NO QUEDA STOCK
+            if producto.cantidad <= 0:
+
+                producto.cantidad = 0
+
+                producto.disponiblidad = disponiblidadMueble.objects.get(id=2)
+
+
+            producto.save()
+
         # GUARDAR
         carrito.save()
 
         # BORRAR SESSION
         del request.session['carrito_id']
+        messages.success(request,"Producto comprado")
 
-    return redirect('ver_carrito')
+    return redirect('IDhistorial_compras')
 
 # HISTORIAL DE PEDIDOS DEL CLIENTE
 def historial_compras(request):

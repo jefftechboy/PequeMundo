@@ -3,7 +3,67 @@
 {% include 'base/navbar.html' %}
 
 {% block content %}
+<style>
+    .contador{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
 
+.btn-contador{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 22px;
+}
+
+#cantidad{
+    width: 50px;
+    text-align: center;
+    border: none;
+    font-size: 20px;
+    background: transparent;
+}
+</style>
+<script>
+   
+function sumar(btn){
+
+    let contenedor = btn.parentElement;
+
+    let input = contenedor.querySelector("input");
+
+    let max = parseInt(input.max);
+
+    let valor = parseInt(input.value);
+
+    if(valor < max){
+
+        input.value = valor + 1;
+
+    }
+
+}
+
+function restar(btn){
+
+    let contenedor = btn.parentElement;
+
+    let input = contenedor.querySelector("input");
+
+    let valor = parseInt(input.value);
+
+    if(valor > 0){
+
+        input.value = valor - 1;
+
+    }
+
+}
+
+</script>
 <!-- =========================
      PRODUCTOS
 ========================= -->
@@ -91,14 +151,15 @@
                 {% csrf_token %}
 
                 <!-- BADGE -->
-                <div class="card-badge hot">
-
-                    <i class="fas fa-fire"></i>
-
-                    {{ producto.estado }}
-
-                </div>
-
+                {% if producto.estado.id == 1 %} 
+                       <div class="card-badge hot">
+       
+                           <i class="fas fa-fire"></i>
+       
+                           {{ producto.estado }}
+                           
+                        </div>
+                {% endif %}  
                 <!-- IMAGEN -->
                 <img
                     src="{{ producto.foto.url }}"
@@ -109,6 +170,16 @@
                 <h3>{{ producto.nombre }}</h3>
 
                 <!-- PRECIO -->
+                <div>
+                    {% if producto.disponiblidad.descripcion != 'No disponible' %}   
+                        Stock {{ producto.cantidad }}
+                        Stock {{ producto.disponibilidad.descripcion }}
+                    {% else %} 
+                        Sin stock 
+                    {% endif %} 
+
+                </div>
+                <!-- PRECIO -->
                 <div class="price">
 
                     ${{ producto.precio }}
@@ -116,28 +187,76 @@
                 </div>
 
                 <!-- CANTIDAD -->
-                <div class="cantidad-container">
+                {% if producto.disponiblidad.descripcion != 'No disponible'  %}
+                <div class="contador">
 
-                    <label>Cantidad</label>
+                    <button
+                        type="button"
+                        onclick="restar(this)"
+                        class="btn-contador"
+                    >
+                        -
+                    </button>
 
                     <input
                         type="number"
+                        id="cantidad"
                         name="cantidad"
-                        value="1"
-                        min="1"
-                        class="cantidad-input"
-                        required
+                        value="0"
+                        min="0"
+                        max="{{ producto.cantidad }}"
+                        readonly
                     >
+                    
+                    <button
+                        type="button"
+                        onclick="sumar(this)"
+                        class="btn-contador"
+                    >
+                        +
+                    </button>
 
                 </div>
+                <!--  
+                    <div class="cantidad-container">
+
+                        <label>Cantidad</label>
+
+                        <input
+                            type="number"
+                            name="cantidad"
+                            value=""
+                            min="1"
+                            max="{{ producto.cantidad }}"
+                            class="cantidad-input"
+                            required
+                        >
+
+                    </div>
+                     -->
+                {% else %}
+                    <button
+                        class="btn-buy"
+                            style="
+                                background: gray;
+                                cursor: not-allowed;
+                                width: 100%;"
+                        disabled
+                    >
+                        No disponible
+
+                    </button>
+                {% endif %}
 
                 <!-- BOTONES -->
                 <div class="card-actions">
 
+                    {% if producto.disponiblidad.descripcion != 'No disponible' %}
                     <!-- COMPRAR -->
                     <button
                         type="submit"
                         class="btn-buy"
+                        onclick="mostrarAlerta(event)"
                     >
 
                         <i class="fas fa-cart-plus"></i>
@@ -145,6 +264,18 @@
                         Comprar
 
                     </button>
+                                        {% else %}
+                    <!-- COMPRAR -->
+                    <h5 style="
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        margin-right: 40px;
+                        margin-left: 30px;
+                    ">
+                        Detalles 
+                    </h5>
+                    {% endif %}
 
                     <!-- DETALLE -->
                     <button
