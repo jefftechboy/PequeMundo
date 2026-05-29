@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.models import User,Group
 from django.core.paginator import Paginator
 from django.contrib import messages
+<<<<<<< HEAD
 from django.contrib.auth.decorators import login_required, user_passes_test
 from functools import wraps
 
@@ -20,6 +21,9 @@ def admin_required(view_func):
             return redirect('IDindex')
         return view_func(request, *args, **kwargs)
     return wrapper
+=======
+from django.http import JsonResponse, HttpResponse
+>>>>>>> 3d9e8341db2c94b57f585e5593326fd4f7ec2eea
 
 # Create your views here.
 def index(request):
@@ -690,3 +694,134 @@ def paginaGestionCrearCuenta(request):
     }
 
     return render(request, 'gestiones/administracion/administrador/gestionCrearCuenta.html',datos)
+
+
+
+
+import mercadopago
+from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+def crear_preferencia_mp(request):
+    carrito_id = request.session.get('carrito_id')
+    if not carrito_id:
+        return redirect('ver_carrito')
+
+    carrito = compra.objects.get(idCompra=carrito_id)
+    detalles = carrito.detalles.all()
+
+    items = []
+    for detalle in detalles:
+        items.append({
+            "id": str(detalle.idMueble.id),
+            "title": detalle.idMueble.nombre,
+            "quantity": detalle.cantidad,
+            "unit_price": float(detalle.idMueble.precio),
+            "currency_id": "CLP",
+        })
+
+    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+
+    preference_data = {
+        "items": items,
+        "back_urls": {
+            "success": request.build_absolute_uri('/pago/exitoso/'),
+            "failure": request.build_absolute_uri('/pago/fallido/'),
+            "pending": request.build_absolute_uri('/pago/pendiente/'),
+        },
+        "external_reference": str(carrito.idCompra),
+    }
+
+    preference_response = sdk.preference().create(preference_data)
+    print("STATUS:", preference_response.get("status"))
+    print("RESPONSE:", preference_response.get("response"))
+
+    preference = preference_response.get("response", {})
+
+    # Intentar obtener el link
+    init_point = preference.get("init_point") or preference.get("sandbox_init_point")
+
+    if not init_point:
+        # Mostrar error detallado en pantalla
+        error_msg = preference.get("message", "Error desconocido de MercadoPago")
+        return HttpResponse(f"Error MP: {error_msg} | Respuesta completa: {preference}", status=500)
+
+    return redirect(init_point)
+
+
+def pago_exitoso(request):
+    """MercadoPago redirige aquí cuando el pago es aprobado."""
+    payment_id = request.GET.get('payment_id')
+    external_reference = request.GET.get('external_reference')  # es el idCompra
+
+    if external_reference:
+        try:
+            carrito = compra.objects.get(idCompra=int(external_reference))
+            
+            if not carrito.completada:
+                carrito.completada = True
+                
+                # Descontar stock
+                for detalle in carrito.detalles.all():
+                    producto = detalle.idMueble
+                    producto.cantidad -= detalle.cantidad
+                    if producto.cantidad <= 0:
+                        producto.cantidad = 0
+                        producto.disponiblidad = disponiblidadMueble.objects.get(id=2)
+                    producto.save()
+                
+                carrito.save()
+
+            # Limpiar sesión del carrito
+            if 'carrito_id' in request.session:
+                del request.session['carrito_id']
+
+        except compra.DoesNotExist:
+            pass
+
+    messages.success(request, "¡Pago realizado con éxito!")
+    return redirect('IDhistorial_compras')
+
+
+def pago_fallido(request):
+    messages.error(request, "El pago fue rechazado. Intenta nuevamente.")
+    return redirect('ver_carrito')
+
+
+def pago_pendiente(request):
+    messages.warning(request, "Tu pago está pendiente de confirmación.")
+    return redirect('IDhistorial_compras')
+
+
+@csrf_exempt
+def webhook_mp(request):
+    """MercadoPago notifica aquí los cambios de estado de pago."""
+    if request.method == "POST":
+        data = json.loads(request.body)
+        if data.get("type") == "payment":
+            sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+            payment_id = data["data"]["id"]
+            payment_info = sdk.payment().get(payment_id)
+            payment = payment_info["response"]
+
+            if payment["status"] == "approved":
+                external_ref = payment.get("external_reference")
+                if external_ref:
+                    try:
+                        carrito = compra.objects.get(idCompra=int(external_ref))
+                        if not carrito.completada:
+                            carrito.completada = True
+                            for detalle in carrito.detalles.all():
+                                producto = detalle.idMueble
+                                producto.cantidad -= detalle.cantidad
+                                if producto.cantidad <= 0:
+                                    producto.cantidad = 0
+                                    producto.disponiblidad = disponiblidadMueble.objects.get(id=2)
+                                producto.save()
+                            carrito.save()
+                    except compra.DoesNotExist:
+                        pass
+
+    return JsonResponse({"status": "ok"})

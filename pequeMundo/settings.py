@@ -122,3 +122,8 @@ import os
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR,"media")
+
+
+# MercadoPago
+MERCADOPAGO_PUBLIC_KEY = "TEST-7d77b0ea-a957-42e6-8576-9de511d8bf1c"  # tu Public Key
+MERCADOPAGO_ACCESS_TOKEN = "TEST-3292332474522088-052817-8964c65e27db1be9d5c5a106fbf5a0f3-2084509633"  # tu Access Token

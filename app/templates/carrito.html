@@ -164,27 +164,13 @@
                         Seguir comprando
                     </a>
 
-                    <!-- FINALIZAR -->
-                    <form
-                        method="POST"
-                        action="{% url 'finalizar_compra' %}"
-                    >
-
-                        {% csrf_token %}
-
-                        <button
-                            type="submit"
-                            class="btn-primary"
-                            onclick="confirmar_compra_carrito(event)"
-                        >
-
-                            <i class="fas fa-check-circle"></i>
-
-                            Finalizar compra
-
-                        </button>
-
-                    </form>
+                    <a href="{% url 'crear_preferencia_mp' %}"
+            class="btn-primary"
+                style="display:inline-block; text-align:center; text-decoration:none;"
+                >
+            <i class="fas fa-check-circle"></i>
+        Pagar con MercadoPago
+                    </a>
 
                 </div>
 
