@@ -5,6 +5,21 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.models import User,Group
 from django.core.paginator import Paginator
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
+from functools import wraps
+
+# Decorador para verificar si es administrador
+def admin_required(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.warning(request, 'Debe iniciar sesion')
+            return redirect('IDpaginalogin')
+        if not request.user.is_staff:
+            messages.error(request, 'Solo los administradores pueden acceder a esta pagina')
+            return redirect('IDindex')
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 # Create your views here.
 def index(request):
@@ -59,9 +74,21 @@ def paginaCarrito(request):
             }
         )
 
-    carrito = compra.objects.get(
-        idCompra=carrito_id
-    )
+    try:
+        carrito = compra.objects.get(
+            idCompra=carrito_id
+        )
+    except compra.DoesNotExist:
+        # Si el carrito no existe, limpiar sesión
+        del request.session['carrito_id']
+        return render(
+            request,
+            'carrito.html',
+            {
+                'detalles': [],
+                'carrito': None
+            }
+        )
 
     detalles = carrito.detalles.all()
 
@@ -118,8 +145,14 @@ def paginaLogin(request):
 
     if request.method == 'POST':
 
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+
+        # Validar que los campos no estén vacíos
+        if not username or not password:
+            return render(request, 'login/login.html', {
+                'error': 'Por favor completa todos los campos'
+            })
 
         user = authenticate(
             request,
@@ -130,12 +163,11 @@ def paginaLogin(request):
         if user is not None:
 
             login(request, user)
-
+            messages.success(request, f'¡Bienvenido {user.username}!')
             return redirect('IDindex')
 
-
         else:
-            return render(request, 'login.html', {
+            return render(request, 'login/login.html', {
                 'error': 'Usuario o contraseña incorrectos'
             })
 
@@ -147,6 +179,12 @@ def cerrarSesion(request):
 
 # GESTION DE PERFIL DE USUARIO (CLIENTE)
 def paginaPerfilCliente(request):
+    
+    # Verificar si el usuario está autenticado
+    if not request.user.is_authenticated:
+        messages.warning(request, 'Debe iniciar sesión para ver su perfil')
+        return redirect('IDpaginalogin')
+    
     existe = cuenta.objects.filter(
         usuario_cuenta=request.user.id
     ).exists()
@@ -245,12 +283,26 @@ def agregar_carrito(request, id):
 
     if request.method == "POST":
 
+        # Verificar si el usuario está autenticado
+        if not request.user.is_authenticated:
+            messages.warning(request, 'Debe iniciar sesión para agregar productos al carrito')
+            return redirect('IDpaginalogin')
+
         # producto
-        producto = mueble.objects.get(id=id)
+        try:
+            producto = mueble.objects.get(id=id)
+        except mueble.DoesNotExist:
+            messages.error(request, 'El producto no existe')
+            return redirect('IDpaginaProductos')
+            
         # cantidad
-        cantidad = int(
-            request.POST.get('cantidad')
-        )
+        try:
+            cantidad = int(
+                request.POST.get('cantidad')
+            )
+        except (ValueError, TypeError):
+            messages.error(request, 'Cantidad inválida')
+            return redirect('IDpaginaProductos')
 
         # buscar carrito sesión
         carrito_id = request.session.get(
@@ -260,9 +312,13 @@ def agregar_carrito(request, id):
         # crear carrito si no existe
         if not carrito_id:
 
-            cliente = cuenta.objects.get(
-                usuario_cuenta=request.user.id
-            )
+            try:
+                cliente = cuenta.objects.get(
+                    usuario_cuenta=request.user.id
+                )
+            except cuenta.DoesNotExist:
+                messages.error(request, 'Por favor completa tu perfil de cliente antes de hacer compras')
+                return redirect('IDpaginaPerfilCliente')
 
             carrito = compra.objects.create(
 
@@ -323,7 +379,11 @@ def agregar_carrito(request, id):
     return redirect('ver_carrito')
 def eliminar_item_carrito(request, id):
 
-    detalle = detalleCompra.objects.get(idDetalle=id)
+    try:
+        detalle = detalleCompra.objects.get(idDetalle=id)
+    except detalleCompra.DoesNotExist:
+        messages.error(request, 'El producto no existe en el carrito')
+        return redirect('ver_carrito')
 
     carrito = detalle.idCompra
 
@@ -350,6 +410,11 @@ def finalizar_compra(request):
 
     if request.method == "POST":
 
+        # Verificar si el usuario está autenticado
+        if not request.user.is_authenticated:
+            messages.warning(request, 'Debe iniciar sesión para finalizar la compra')
+            return redirect('IDpaginalogin')
+
         # OBTENER ID CARRITO
         carrito_id = request.session.get(
             'carrito_id'
@@ -365,9 +430,13 @@ def finalizar_compra(request):
         )
 
         # BUSCAR CLIENTE
-        cliente = cuenta.objects.get(
-            usuario_cuenta=request.user.id
-        )
+        try:
+            cliente = cuenta.objects.get(
+                usuario_cuenta=request.user.id
+            )
+        except cuenta.DoesNotExist:
+            messages.error(request, 'Por favor completa tu perfil de cliente para finalizar la compra')
+            return redirect('IDpaginaPerfilCliente')
 
         # ASIGNAR CLIENTE
         carrito.idCliente = cliente
@@ -413,6 +482,7 @@ def historial_compras(request):
 
 
 # GESTIONES
+@admin_required
 def paginaInicioGestiones(request):
     # OBTENER EL MUEBLE MAS COMPRADO
     acumulado = {}
@@ -483,7 +553,7 @@ def paginaInicioGestiones(request):
 
 
 
-
+@admin_required
 def paginaGestionMuebles(request):
     muebles = mueble.objects.all()
     datos = {
@@ -491,6 +561,7 @@ def paginaGestionMuebles(request):
     }
     return render(request,'gestiones/administracion/vendedor/gestionMuebles.html',datos)
 
+@admin_required
 def modificar_mueble(request, id):
 
     muebleDatos = mueble.objects.get(id=id)
@@ -535,6 +606,7 @@ def modificar_mueble(request, id):
 
     )
 
+@admin_required
 def crearMueble(request):
     datos = {
             'formularioMueble' : muebleForm(),
@@ -550,10 +622,12 @@ def crearMueble(request):
             return redirect('IDpaginaGestionMuebles')
     return render(request,'gestiones/administracion/vendedor/crearMueble.html',datos)
 
+@admin_required
 def paginaGestionPedidos(request):
     return render(request,'gestiones/administracion/gestionPedidos.html')
 
 # GESTION DE COMPRAS
+@admin_required
 def paginaGestionCompras(request):
     comprasTotales = compra.objects.all()
     detalleComprasTotales = detalleCompra.objects.all()
@@ -564,6 +638,7 @@ def paginaGestionCompras(request):
     return render(request,'gestiones/administracion/gestionPedidos.html',datos)
 
 
+@admin_required
 def actualizarPedidos(request,id):
     detalleComprado = detalleCompra.objects.get(idDetalle=id)
     formulario = detalleCompraForm(request.POST,instance=detalleComprado)
@@ -593,6 +668,7 @@ def actualizarPedidos(request,id):
 
     )
 
+@admin_required
 def paginaGestionUsuarios(request):
     usuarios = User.objects.all()
 
@@ -605,6 +681,7 @@ def paginaGestionUsuarios(request):
 
 
 # GESTION CREAR CUENTA
+@admin_required
 def paginaGestionCrearCuenta(request):
     datos = {
         'formularioCuenta' : perfilClienteform(),
