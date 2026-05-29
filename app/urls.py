@@ -44,5 +44,11 @@ urlpatterns = [
     # PAGINA GESTION USUARIOS
     path('paginaGestionUsuarios/', paginaGestionUsuarios,name='IDpaginaGestionUsuarios'),
     path('paginaGestionCrearCuenta/', paginaGestionCrearCuenta,name='IDpaginaGestionCrearCuenta'),
-
+   
+    # MERCADOPAGO
+    path('pago/iniciar/', crear_preferencia_mp, name='crear_preferencia_mp'),
+    path('pago/exitoso/', pago_exitoso, name='pago_exitoso'),
+    path('pago/fallido/', pago_fallido, name='pago_fallido'),
+    path('pago/pendiente/', pago_pendiente, name='pago_pendiente'),
+    path('pago/webhook/', webhook_mp, name='webhook_mp'),
 ]

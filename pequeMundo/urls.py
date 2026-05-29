@@ -19,9 +19,16 @@ from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from app.views import crear_preferencia_mp, pago_exitoso, pago_fallido, pago_pendiente, webhook_mp
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('app.urls')),
+    path('pago/iniciar/', crear_preferencia_mp, name='crear_preferencia_mp'),
+    path('pago/exitoso/', pago_exitoso, name='pago_exitoso'),
+    path('pago/fallido/', pago_fallido, name='pago_fallido'),
+    path('pago/pendiente/', pago_pendiente, name='pago_pendiente'),
+    path('pago/webhook/', webhook_mp, name='webhook_mp'),
 ]
 
 if settings.DEBUG:
