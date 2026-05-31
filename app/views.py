@@ -1,13 +1,19 @@
-from urllib import request
-from django.shortcuts import render,redirect
-from .forms import *
-from django.contrib.auth import authenticate,login,logout
-from django.contrib.auth.models import User,Group
-from django.core.paginator import Paginator
-from django.contrib import messages
-<<<<<<< HEAD
-from django.contrib.auth.decorators import login_required, user_passes_test
+import json
 from functools import wraps
+
+import mercadopago
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User, Group
+from django.core.paginator import Paginator
+from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
+
+from .forms import *
 
 # Decorador para verificar si es administrador
 def admin_required(view_func):
@@ -21,17 +27,16 @@ def admin_required(view_func):
             return redirect('IDindex')
         return view_func(request, *args, **kwargs)
     return wrapper
-=======
-from django.http import JsonResponse, HttpResponse
->>>>>>> 3d9e8341db2c94b57f585e5593326fd4f7ec2eea
+
 
 # Create your views here.
 def index(request):
-    return render(request,'menu.html')
+    return render(request, 'menu.html')
+
+
 # Create your views here.
 def paginaProductos(request):
-    return render(request,'productos.html')
-
+    return render(request, 'productos.html')
 
 
 def paginaProductos(request):
@@ -695,14 +700,6 @@ def paginaGestionCrearCuenta(request):
 
     return render(request, 'gestiones/administracion/administrador/gestionCrearCuenta.html',datos)
 
-
-
-
-import mercadopago
-from django.conf import settings
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
 
 def crear_preferencia_mp(request):
     carrito_id = request.session.get('carrito_id')
