@@ -67,48 +67,15 @@ def paginaProductos(request):
 
 def paginaCarrito(request):
 
-    carrito_id = request.session.get(
-        'carrito_id'
-    )
-
-    # carrito vacío
-    if not carrito_id:
-
-        return render(
-            request,
-            'carrito.html',
-            {
-                'detalles': [],
-                'carrito': None
-            }
-        )
-
-    try:
-        carrito = compra.objects.get(
-            idCompra=carrito_id
-        )
-    except compra.DoesNotExist:
-        # Si el carrito no existe, limpiar sesión
-        del request.session['carrito_id']
-        return render(
-            request,
-            'carrito.html',
-            {
-                'detalles': [],
-                'carrito': None
-            }
-        )
-
-    detalles = carrito.detalles.all()
-
-    return render(
-        request,
-        'carrito.html',
-        {
-            'detalles': detalles,
-            'carrito': carrito
-        }
-    )
+    carritoCompra = request.session.get('carritoCompra', {})
+    muebles = mueble.objects.all()
+    datos = {
+        "productosCarrito":carritoCompra,
+        "muebles":muebles
+    }
+    return render(request, 'carrito.html', datos)
+    
+    
 
 
 def paginaPedido(request):
@@ -288,104 +255,41 @@ def listarCatalogo(request):
         varDatosMuebles
     )
 
+
 def agregar_carrito(request, id):
 
     if request.method == "POST":
 
-        # Verificar si el usuario está autenticado
-        if not request.user.is_authenticated:
-            messages.warning(request, 'Debe iniciar sesión para agregar productos al carrito')
-            return redirect('IDpaginalogin')
-
-        # producto
         try:
             producto = mueble.objects.get(id=id)
         except mueble.DoesNotExist:
             messages.error(request, 'El producto no existe')
             return redirect('IDpaginaProductos')
-            
-        # cantidad
+
         try:
-            cantidad = int(
-                request.POST.get('cantidad')
-            )
+            cantidad = int(request.POST.get('cantidad'))
         except (ValueError, TypeError):
             messages.error(request, 'Cantidad inválida')
             return redirect('IDpaginaProductos')
 
-        # buscar carrito sesión
-        carrito_id = request.session.get(
-            'carrito_id'
-        )
+        carritoCompra = request.session.get('carritoCompra', {})
 
-        # crear carrito si no existe
-        if not carrito_id:
+        producto_id = str(producto.id)
 
-            try:
-                cliente = cuenta.objects.get(
-                    usuario_cuenta=request.user.id
-                )
-            except cuenta.DoesNotExist:
-                messages.error(request, 'Por favor completa tu perfil de cliente antes de hacer compras')
-                return redirect('IDpaginaPerfilCliente')
-
-            carrito = compra.objects.create(
-
-                idCliente=cliente,
-
-                total=0,
-
-                completada=False
-            )
-
-            request.session['carrito_id'] = carrito.idCompra
-
+        if producto_id in carritoCompra:
+            carritoCompra[producto_id] += cantidad
         else:
+            carritoCompra[producto_id] = cantidad
 
-            carrito = compra.objects.get(
-                idCompra=carrito_id
-            )
+        request.session['carritoCompra'] = carritoCompra
+        request.session.modified = True
 
-        # buscar item
-        item, creado = detalleCompra.objects.get_or_create(
+        return render(request, 'carrito.html', {
+            'productosCarrito': carritoCompra
+        })
 
-            idCompra=carrito,
-
-            idMueble=producto,
-
-            defaults={
-                'cantidad': cantidad,
-                'subtotal': producto.precio * cantidad
-            }
-        )
-
-        # si ya existe sumar cantidad
-        if not creado:
-
-            item.cantidad += cantidad
-
-            item.subtotal = (
-                item.cantidad *
-                producto.precio
-            )
-
-            item.save()
-
-        # recalcular total
-        total = 0
-
-        for detalle in carrito.detalles.all():
-
-            total += detalle.subtotal
-
-        carrito.total = total
-        carrito.save()
-        messages.success(
-            request,
-            'Producto agregado al carrito correctamente'
-        )
-        return redirect('ver_carrito')
-    return redirect('ver_carrito')
+    return redirect('IDpaginaProductos')
+# ------------------------------------------------------------------
 def eliminar_item_carrito(request, id):
 
     try:
@@ -476,7 +380,7 @@ def finalizar_compra(request):
         del request.session['carrito_id']
         messages.success(request,"Producto comprado")
 
-    return redirect('IDhistorial_compras')
+    return redirect('IDhistorial_compras',carritoCompra)
 
 # HISTORIAL DE PEDIDOS DEL CLIENTE
 def historial_compras(request):
@@ -700,86 +604,133 @@ def paginaGestionCrearCuenta(request):
 
     return render(request, 'gestiones/administracion/administrador/gestionCrearCuenta.html',datos)
 
-
 def crear_preferencia_mp(request):
-    carrito_id = request.session.get('carrito_id')
-    if not carrito_id:
+
+    carritoCompra = request.session.get('carritoCompra', {})
+
+    if not carritoCompra:
         return redirect('ver_carrito')
 
-    carrito = compra.objects.get(idCompra=carrito_id)
-    detalles = carrito.detalles.all()
-
     items = []
-    for detalle in detalles:
+
+    for producto_id, cantidad in carritoCompra.items():
+
+        try:
+            producto = mueble.objects.get(id=producto_id)
+        except mueble.DoesNotExist:
+            continue
+
         items.append({
-            "id": str(detalle.idMueble.id),
-            "title": detalle.idMueble.nombre,
-            "quantity": detalle.cantidad,
-            "unit_price": float(detalle.idMueble.precio),
+            "id": str(producto.id),
+            "title": producto.nombre,
+            "quantity": int(cantidad),
+            "unit_price": float(producto.precio),
             "currency_id": "CLP",
         })
 
-    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+    if not items:
+        return redirect('ver_carrito')
 
+    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
     preference_data = {
         "items": items,
         "back_urls": {
-            "success": request.build_absolute_uri('/pago/exitoso/'),
-            "failure": request.build_absolute_uri('/pago/fallido/'),
-            "pending": request.build_absolute_uri('/pago/pendiente/'),
+            "success": "https://hedging-idly-eggplant.ngrok-free.dev/pago/exitoso/",
+            "failure": "https://hedging-idly-eggplant.ngrok-free.dev/pago/fallido/",
+            "pending": "https://hedging-idly-eggplant.ngrok-free.dev/pago/pendiente/",
         },
-        "external_reference": str(carrito.idCompra),
+        "auto_return": "approved",
+        "external_reference": str(request.user.id) if request.user.is_authenticated else "invitado",
     }
+    print("PREFERENCE DATA:", preference_data)
 
     preference_response = sdk.preference().create(preference_data)
+
     print("STATUS:", preference_response.get("status"))
     print("RESPONSE:", preference_response.get("response"))
 
     preference = preference_response.get("response", {})
 
-    # Intentar obtener el link
     init_point = preference.get("init_point") or preference.get("sandbox_init_point")
 
     if not init_point:
-        # Mostrar error detallado en pantalla
         error_msg = preference.get("message", "Error desconocido de MercadoPago")
-        return HttpResponse(f"Error MP: {error_msg} | Respuesta completa: {preference}", status=500)
+        return HttpResponse(
+            f"Error MP: {error_msg} | Respuesta completa: {preference}",
+            status=500
+        )
 
     return redirect(init_point)
 
-
 def pago_exitoso(request):
     """MercadoPago redirige aquí cuando el pago es aprobado."""
-    payment_id = request.GET.get('payment_id')
-    external_reference = request.GET.get('external_reference')  # es el idCompra
 
-    if external_reference:
+    print("ENTRO A PAGO EXITOSO")
+    print("SESSION:", dict(request.session.items()))
+
+    carritoCompra = request.session.get('carritoCompra', {})
+
+    print("CARRITO:", carritoCompra)
+
+    if not carritoCompra:
+        messages.error(request, "No hay productos en el carrito.")
+        return redirect('ver_carrito')
+
+    try:
+        cliente = cuenta.objects.get(
+            usuario_cuenta=request.user.id
+        )
+    except cuenta.DoesNotExist:
+        messages.error(request, 'No se encontró el perfil del cliente.')
+        return redirect('IDpaginaPerfilCliente')
+
+    carrito = compra.objects.create(
+        idCliente=cliente,
+        total=0,
+        completada=True
+    )
+
+    total = 0
+
+    for producto_id, cantidad in carritoCompra.items():
+
         try:
-            carrito = compra.objects.get(idCompra=int(external_reference))
-            
-            if not carrito.completada:
-                carrito.completada = True
-                
-                # Descontar stock
-                for detalle in carrito.detalles.all():
-                    producto = detalle.idMueble
-                    producto.cantidad -= detalle.cantidad
-                    if producto.cantidad <= 0:
-                        producto.cantidad = 0
-                        producto.disponiblidad = disponiblidadMueble.objects.get(id=2)
-                    producto.save()
-                
-                carrito.save()
+            producto = mueble.objects.get(id=producto_id)
+        except mueble.DoesNotExist:
+            continue
 
-            # Limpiar sesión del carrito
-            if 'carrito_id' in request.session:
-                del request.session['carrito_id']
+        cantidad = int(cantidad)
+        subtotal = producto.precio * cantidad
 
-        except compra.DoesNotExist:
-            pass
+        detalleCompra.objects.create(
+            idCompra=carrito,
+            idMueble=producto,
+            cantidad=cantidad,
+            subtotal=subtotal
+        )
+
+        total += subtotal
+
+        producto.cantidad -= cantidad
+
+        if producto.cantidad <= 0:
+            producto.cantidad = 0
+            producto.disponiblidad = disponiblidadMueble.objects.get(id=2)
+
+        producto.save()
+
+    carrito.total = total
+    carrito.save()
+
+    request.session.pop('carritoCompra', None)
+    request.session.modified = True
+
+    print("COMPRA GUARDADA:", carrito.idCompra)
+    print("CARRITO BORRADO:", request.session.get('carritoCompra'))
 
     messages.success(request, "¡Pago realizado con éxito!")
     return redirect('IDhistorial_compras')
+
 
 
 def pago_fallido(request):

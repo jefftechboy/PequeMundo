@@ -27,8 +27,15 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'hedging-idly-eggplant.ngrok-free.dev',
+]
 
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://hedging-idly-eggplant.ngrok-free.dev',
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -125,5 +132,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR,"media")
 
 
 # MercadoPago
-MERCADOPAGO_PUBLIC_KEY = "TEST-7d77b0ea-a957-42e6-8576-9de511d8bf1c"  # tu Public Key
-MERCADOPAGO_ACCESS_TOKEN = "TEST-3292332474522088-052817-8964c65e27db1be9d5c5a106fbf5a0f3-2084509633"  # tu Access Token
+MERCADOPAGO_PUBLIC_KEY = "APP_USR-566665cf-82aa-4c77-89d8-4cf22399a65b"  # tu Public Key
+MERCADOPAGO_ACCESS_TOKEN = "APP_USR-2936277684476260-052817-18aee146e8c096fbd3c01372fd3b6029-3432269529"  # tu Access Token

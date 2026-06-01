@@ -3,22 +3,18 @@
 
 {% block content %}
 
-
 <main class="cart-container">
 
     <div class="cart-header">
-
         <h1>
             <i class="fas fa-shopping-basket"></i>
             Mi carrito
         </h1>
-
     </div>
 
     <div id="cartContent">
 
-        <!-- CARRITO VACÍO -->
-        {% if not detalles %}
+        {% if not productosCarrito %}
 
         <div class="empty-cart">
 
@@ -33,7 +29,7 @@
             </p>
 
             <a
-                href="{% url 'ver_carrito' %}"
+                href="{% url 'IDpaginaProductos' %}"
                 class="btn-secondary"
                 style="margin-top: 1rem; display: inline-block;"
             >
@@ -45,74 +41,77 @@
 
         {% else %}
 
-        <!-- ITEMS -->
         <div id="cartItemsList" class="cart-items">
 
-            {% for item in detalles %}
+            {% for producto_id, cantidad in productosCarrito.items %}
 
-            <div class="cart-item">
+                {% for item in muebles %}
 
-                <!-- IMAGEN -->
-                <div class="cart-item-image">
+                    {% if item.id|stringformat:"s" == producto_id %}
 
-                    <img width="300px"
-                        src="{{ item.idMueble.foto.url }}"
-                        alt="{{ item.idMueble.nombre }}"
-                    >
+                    <div class="cart-item">
 
-                </div>
+                        <div class="cart-item-image">
 
-                <!-- INFO -->
-                <div class="cart-item-info">
+                            <img width="300px"
+                                src="{{ item.foto.url }}"
+                                alt="{{ item.nombre }}"
+                            >
 
-                    <h3>
-                        {{ item.idMueble.nombre }}
-                    </h3>
+                        </div>
 
-                    <p>
-                        {{ item.idMueble.descripcion }}
-                    </p>
+                        <div class="cart-item-info">
 
-                    <div class="cart-item-price">
+                            <h3>
+                                {{ item.nombre }}
+                            </h3>
 
-                        <span>
-                            Precio:
-                            ${{ item.idMueble.precio }}
-                        </span>
+                            <p>
+                                {{ item.descripcion }}
+                            </p>
 
-                        <span>
-                            Cantidad:
-                            {{ item.cantidad }}
-                        </span>
+                            <div class="cart-item-price">
+
+                                <span>
+                                    Precio:
+                                    ${{ item.precio }}
+                                </span>
+
+                                <span>
+                                    Cantidad:
+                                    {{ cantidad }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cart-item-subtotal">
+
+                            <strong>
+                                Precio unitario:
+                                ${{ item.precio }}
+                            </strong>
+
+                        </div>
+
+                        <a
+                            href="{% url 'IDeliminarCarrito' item.id %}"
+                            class="btn-eliminar"
+                        >
+                            <i class="fas fa-trash"></i>
+                        </a>
 
                     </div>
 
-                </div>
+                    {% endif %}
 
-                <!-- SUBTOTAL -->
-                <div class="cart-item-subtotal">
-
-                    <strong>
-                        ${{ item.subtotal }}
-                    </strong>
-
-                </div>
-                <!-- 
-                    
-                 -->
-                <a
-                    href="{% url 'IDeliminarCarrito' item.idDetalle  %}"
-                    class="btn-eliminar"
-                >
-                    <i class="fas fa-trash"></i>
-                </a>
-            </div>
+                {% endfor %}
 
             {% endfor %}
 
         </div>
 
-        <!-- RESUMEN -->
         <div id="cartSummary">
 
             <div class="cart-summary">
@@ -124,7 +123,7 @@
                     </span>
 
                     <span>
-                        ${{ carrito.total }}
+                        Pendiente
                     </span>
 
                 </div>
@@ -148,12 +147,11 @@
                     </span>
 
                     <span>
-                        ${{ carrito.total }}
+                        Pendiente
                     </span>
 
                 </div>
 
-                <!-- BOTONES -->
                 <div class="cart-actions">
 
                     <a
@@ -164,12 +162,13 @@
                         Seguir comprando
                     </a>
 
-                    <a href="{% url 'crear_preferencia_mp' %}"
-            class="btn-primary"
-                style="display:inline-block; text-align:center; text-decoration:none;"
-                >
-            <i class="fas fa-check-circle"></i>
-        Pagar con MercadoPago
+                    <a
+                        href="{% url 'crear_preferencia_mp' %}"
+                        class="btn-primary"
+                        style="display:inline-block; text-align:center; text-decoration:none;"
+                    >
+                        <i class="fas fa-check-circle"></i>
+                        Pagar con MercadoPago
                     </a>
 
                 </div>
@@ -187,6 +186,7 @@
 {% endblock %}
 
 {% include 'base/footer.html' %}
+
 {% if messages %}
     {% for message in messages %}
 
