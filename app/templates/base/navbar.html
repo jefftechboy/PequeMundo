@@ -5,7 +5,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>Document</title>
+        <title>Peque Mundo</title>
         <!-- CARGA DE CSS DE LAS PAGINAS -->
         <link rel="stylesheet" href="{% static 'css/navbar.css' %}"> 
         <link rel="stylesheet" href="{% static 'css/menu.css' %}"> 
@@ -41,20 +41,33 @@
                 <img src="../../static/img/pequeMundo_logo.png" alt="Peque Mundo - Muebles infantiles" 
                 style="height: 100px; width: auto; display: block;">
             </a>
-                {% if user.is_authenticated %}
-                    <a href="{% url 'ver_carrito' %}" class="imagenCarrito">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="30"  fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
-                            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
-                        </svg>    
-                    </a>
-                    <a href="{% url 'IDpaginaPerfilCliente' %}" class="btnCuenta" aria-label="Mi cuenta">Cuenta</a>
+                {% if user.is_authenticated%}
+                    <!--  ESTA ES DEL CLIENTE   -->
+                    {% if user.is_authenticated %}
+                        {% for group in user.groups.all %}
+                        <!-- SI ES ADMINISTRATIVO -->
+                            {% if group.name == 'admin' or  group.name == 'finanzas' or group.name == 'vendedores' %}
+                                <button class="btnCuenta" style="
+                                    background-color: #8080807d;
+                                    color: #000000;
+                                    border: 1px solid #8080807d;
+                                    cursor: default; 
+                                    opacity: 1;
+                                    margin-left: 48%;" disabled 
+                                >{{ group.name }}</button>
+                            {% else %}
+                                <a href="{% url 'ver_carrito' %}" class="imagenCarrito">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="30"  fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                                        <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+                                    </svg>    
+                                </a>
+                                <a href="{% url 'IDpaginaPerfilCliente' %}" class="btnCuenta" aria-label="Mi cuenta">Cuenta</a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
                     <a href="{% url 'IDcerrarSesion' %}" class="btnCuenta" aria-label="Mi cuenta">Cerrar sesion</a>
                 {% else %}
-                    <a href="#" class="imagenCarrito" style="cursor: default; text-decoration: none;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="30"  fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
-                            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
-                        </svg>    
-                    </a>
+                    <!-- SON LOS NO LOGEADOS -->
                     <a href="{% url 'IDpaginalogin' %}" class="btnCuenta" aria-label="Mi cuenta">Iniciar Sesion</a>
                 {% endif %}
         </header>
@@ -62,14 +75,15 @@
         <a href="{% url 'IDindex' %}">Inicio</a>
         <a href="{% url 'IDpaginaProductos' %}">Productos</a>
 
-        <!-- OPCIONES PARA ADMINISTRADOR -->
-        {% if user.is_authenticated and user.is_staff %}
-            <a href="{% url 'IDpaginaInicioGestiones' %}">Gestiones</a>
-        {% endif %}
-
         <!-- OPCIONES PARA CLIENTE -->
-        {% if user.is_authenticated and not user.is_staff %}
-            <a href="{% url 'ver_carrito' %}">Carrito</a>
-            <a href="{% url 'IDhistorial_compras' %}">Mis Pedidos</a>
-        {% endif %}
-        </nav>
+            {% if user.is_authenticated %}
+                {% for group in user.groups.all %}
+                    {% if group.name == 'admin' or  group.name == 'finanzas' or group.name == 'vendedores' %}
+                        <a href="{% url 'IDpaginaInicioGestiones' %}">Gestiones</a>
+                    {% else %}
+                        <a href="{% url 'ver_carrito' %}">Carrito</a>
+                        <a href="{% url 'IDhistorial_compras' %}">Mis Pedidos</a>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+    </nav>

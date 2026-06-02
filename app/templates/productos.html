@@ -142,6 +142,9 @@ function restar(btn){
         <!-- CARD -->
         <div class="card" data-id="{{ producto.id }}">
 
+
+            <!-- SECCION PARA COMPRAR EXCLUSIVA CLIENTES -------------------------------------------  -->
+            
             <!-- FORM -->
             <form
                 method="POST"
@@ -172,8 +175,8 @@ function restar(btn){
                 <!-- PRECIO -->
                 <div>
                     {% if producto.disponiblidad.descripcion != 'No disponible' %}   
-                        Stock {{ producto.cantidad }}
-                        Stock {{ producto.disponibilidad.descripcion }}
+                        {{ producto.cantidad }} Unidades
+                        {{ producto.disponiblidad.descripcion }}
                     {% else %} 
                         Sin stock 
                     {% endif %} 
@@ -182,116 +185,124 @@ function restar(btn){
                 <!-- PRECIO -->
                 <div class="price">
 
-                    ${{ producto.precio }}
+                    Valor:  ${{ producto.precio }}
 
                 </div>
+                <!-- SELECCION DE CANTIDAD A SUMAR AL CARRITO SOLO POR LOS CLIENTES -->
+                {% if user.is_authenticated%}
+                    <!--  ESTA ES DEL CLIENTE   -->
+                    {% if user.is_authenticated %}
+                        {% for group in user.groups.all %}
+                            <!-- SI ES ADMINISTRATIVO -->
+                            {% if group.name == 'admin' or  group.name == 'finanzas' or group.name == 'vendedores' %}
+                                <!-- DETALLE PRODUCTO -->
+                                <button
+                                    type="button"
+                                    class="btn-detail"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal{{ producto.id }}"
+                                >
 
-                <!-- CANTIDAD -->
-                {% if producto.disponiblidad.descripcion != 'No disponible'  %}
-                <div class="contador">
+                                    <i class="fas fa-eye"></i>
 
-                    <button
-                        type="button"
-                        onclick="restar(this)"
-                        class="btn-contador"
-                    >
-                        -
-                    </button>
+                                </button>
+                            <!-- SI ES CLIENTE -->
+                            {% else %}
+                                <!-- CANTIDAD -->
+                                {% if producto.disponiblidad.descripcion != 'No disponible'  %}
+                                <div class="contador">
 
-                    <input
-                        type="number"
-                        id="cantidad"
-                        name="cantidad"
-                        value="0"
-                        min="0"
-                        max="{{ producto.cantidad }}"
-                        readonly
-                    >
-                    
-                    <button
-                        type="button"
-                        onclick="sumar(this)"
-                        class="btn-contador"
-                    >
-                        +
-                    </button>
+                                    <button
+                                        type="button"
+                                        onclick="restar(this)"
+                                        class="btn-contador"
+                                    >
+                                        -
+                                    </button>
 
-                </div>
-                <!--  
-                    <div class="cantidad-container">
+                                    <input
+                                        type="number"
+                                        id="cantidad"
+                                        name="cantidad"
+                                        value="0"
+                                        min="0"
+                                        max="{{ producto.cantidad }}"
+                                        readonly
+                                    >
+                                    
+                                    <button
+                                        type="button"
+                                        onclick="sumar(this)"
+                                        class="btn-contador"
+                                    >
+                                        +
+                                    </button>
 
-                        <label>Cantidad</label>
+                                </div>
+                                {% else %}
+                                    <button
+                                        class="btn-buy"
+                                            style="
+                                                background: gray;
+                                                cursor: not-allowed;
+                                                width: 100%;"
+                                        disabled
+                                    >
+                                        No disponible
 
-                        <input
-                            type="number"
-                            name="cantidad"
-                            value=""
-                            min="1"
-                            max="{{ producto.cantidad }}"
-                            class="cantidad-input"
-                            required
-                        >
+                                    </button>
+                                {% endif %}
 
-                    </div>
-                     -->
-                {% else %}
-                    <button
-                        class="btn-buy"
-                            style="
-                                background: gray;
-                                cursor: not-allowed;
-                                width: 100%;"
-                        disabled
-                    >
-                        No disponible
+                                <!-- BOTONES -->
+                                <div class="card-actions">
 
-                    </button>
-                {% endif %}
+                                    {% if producto.disponiblidad.descripcion != 'No disponible' %}
+                                    <!-- COMPRAR -->
+                                    <button
+                                        type="submit"
+                                        class="btn-buy"
+                                        onclick="mostrarAlerta(event)"
+                                    >
 
-                <!-- BOTONES -->
-                <div class="card-actions">
+                                        <i class="fas fa-cart-plus"></i>
 
-                    {% if producto.disponiblidad.descripcion != 'No disponible' %}
-                    <!-- COMPRAR -->
-                    <button
-                        type="submit"
-                        class="btn-buy"
-                        onclick="mostrarAlerta(event)"
-                    >
+                                        Comprar
 
-                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                                        {% else %}
+                                    <!-- COMPRAR -->
+                                    <h5 style="
+                                        display: flex;
+                                        justify-content: center;
+                                        align-items: center;
+                                        margin-right: 40px;
+                                        margin-left: 30px;
+                                    ">
+                                        Detalles 
+                                    </h5>
+                                    {% endif %}
 
-                        Comprar
+                                    <!-- DETALLE -->
+                                    <button
+                                        type="button"
+                                        class="btn-detail"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#exampleModal{{ producto.id }}"
+                                    >
 
-                    </button>
-                                        {% else %}
-                    <!-- COMPRAR -->
-                    <h5 style="
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        margin-right: 40px;
-                        margin-left: 30px;
-                    ">
-                        Detalles 
-                    </h5>
+                                        <i class="fas fa-eye"></i>
+
+                                    </button>
+
+                                </div>
+                            {% endif %}
+                        {% endfor %}
                     {% endif %}
-
-                    <!-- DETALLE -->
-                    <button
-                        type="button"
-                        class="btn-detail"
-                        data-bs-toggle="modal"
-                        data-bs-target="#exampleModal{{ producto.id }}"
-                    >
-
-                        <i class="fas fa-eye"></i>
-
-                    </button>
-
-                </div>
-
+                {% endif %}
             </form>
+
+
+
 
         </div>
         <!-- MODAL -->

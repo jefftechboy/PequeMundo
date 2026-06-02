@@ -16,28 +16,12 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .forms import *
 
-# Decorador para verificar si es administrador
-def admin_required(view_func):
-    @wraps(view_func)
-    def wrapper(request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            messages.warning(request, 'Debe iniciar sesion')
-            return redirect('IDpaginalogin')
-        if not request.user.is_staff:
-            messages.error(request, 'Solo los administradores pueden acceder a esta pagina')
-            return redirect('IDindex')
-        return view_func(request, *args, **kwargs)
-    return wrapper
-
 
 # Create your views here.
 def index(request):
     return render(request, 'menu.html')
 
 
-# Create your views here.
-def paginaProductos(request):
-    return render(request, 'productos.html')
 
 
 def paginaProductos(request):
@@ -66,26 +50,40 @@ def paginaProductos(request):
         datos
     )
 
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['clientes']).exists(),login_url='IDindex')
 def paginaCarrito(request):
 
     carritoCompra = request.session.get('carritoCompra', {})
     muebles = mueble.objects.all()
+
+    total = 0
+
+    for id_producto, cantidad in carritoCompra.items():
+
+        try:
+            producto = mueble.objects.get(id=id_producto)
+            total += producto.precio * cantidad
+        except mueble.DoesNotExist:
+            pass
+
     datos = {
-        "productosCarrito":carritoCompra,
-        "muebles":muebles
+        "productosCarrito": carritoCompra,
+        "muebles": muebles,
+        "total": total
     }
+
     return render(request, 'carrito.html', datos)
     
     
 
-
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['clientes']).exists(),login_url='IDindex')
 def paginaPedido(request):
     return render(request,'pedido.html')
 
-def gestion_muebles(request):
-    return render(request,'gestiones/administracion/vendedor/gestionMuebles.html')
 
-# GESTION DE LOGIN USUARIOS
+# CREAR CUENTAS USERs
 def paginaCrearCuenta(request):
     if request.method == 'POST':
 
@@ -155,6 +153,9 @@ def cerrarSesion(request):
     return render(request,'menu.html')
 
 # GESTION DE PERFIL DE USUARIO (CLIENTE)
+@login_required
+@user_passes_test(
+    lambda u: u.groups.filter( name__in=['clientes']).exists(),login_url='IDindex')
 def paginaPerfilCliente(request):
     
     # Verificar si el usuario está autenticado
@@ -190,7 +191,8 @@ def paginaPerfilCliente(request):
                 return redirect('IDpaginaPerfilCliente')
         return render(request,'cliente/perfilCliente.html',datos)
 
-
+@login_required
+@user_passes_test(lambda u: u.groups.filter( name__in=['clientes']).exists(),login_url='IDindex')
 def actualizarPerfilCliente(request, id):
 
     clienteDatos = cuenta.objects.get(id=id)
@@ -221,7 +223,7 @@ def actualizarPerfilCliente(request, id):
         datos
     )
 # CATALOGO
-
+@login_required
 def listarCatalogo(request):
     # TODOS LOS MUEBLES
     muebles = mueble.objects.all()
@@ -256,7 +258,8 @@ def listarCatalogo(request):
         varDatosMuebles
     )
 
-
+@login_required
+@user_passes_test(lambda u: u.groups.filter( name__in=['clientes']).exists(),login_url='IDindex')
 def agregar_carrito(request, id):
 
     if request.method == "POST":
@@ -285,41 +288,34 @@ def agregar_carrito(request, id):
         request.session['carritoCompra'] = carritoCompra
         request.session.modified = True
 
-        return render(request, 'carrito.html', {
-            'productosCarrito': carritoCompra
-        })
+        return redirect('ver_carrito')
 
     return redirect('IDpaginaProductos')
 # ------------------------------------------------------------------
+@login_required
+@user_passes_test(lambda u: u.groups.filter( name__in=['clientes']).exists(),login_url='IDindex')
 def eliminar_item_carrito(request, id):
 
-    try:
-        detalle = detalleCompra.objects.get(idDetalle=id)
-    except detalleCompra.DoesNotExist:
+    carritoCompra = request.session.get('carritoCompra', {})
+
+    producto_id = str(id)
+
+    if producto_id in carritoCompra:
+
+        del carritoCompra[producto_id]
+
+        request.session['carritoCompra'] = carritoCompra
+        request.session.modified = True
+
+        messages.success(request, 'Producto eliminado del carrito')
+
+    else:
+
         messages.error(request, 'El producto no existe en el carrito')
-        return redirect('ver_carrito')
-
-    carrito = detalle.idCompra
-
-    # ELIMINAR SUBTOTAL DEL TOTAL
-    carrito.total -= detalle.subtotal
-
-    if carrito.total < 0:
-
-        carrito.total = 0
-
-    carrito.save()
-
-    # ELIMINAR ITEM
-    detalle.delete()
-
-    messages.success(
-        request,
-        'Producto eliminado del carrito'
-    )
 
     return redirect('ver_carrito')
-
+@login_required
+@user_passes_test(lambda u: u.groups.filter( name__in=['clientes']).exists(),login_url='IDindex')
 def finalizar_compra(request):
 
     if request.method == "POST":
@@ -384,9 +380,14 @@ def finalizar_compra(request):
     return redirect('IDhistorial_compras')
 
 # HISTORIAL DE PEDIDOS DEL CLIENTE
+@login_required
+@user_passes_test(lambda u: u.groups.filter( name__in=['clientes']).exists(),login_url='IDindex')
 def historial_compras(request):
-    compras = compra.objects.all()
+    compras = compra.objects.all().order_by('-fecha')
+    print("lala")
     detalleCompras = detalleCompra.objects.all()
+    for c in compras:
+        print(c.idCompra)
 
     url = "https://6a18c0ad23c3626470abfd36.mockapi.io/api/pequeMundo/Envios"
 
@@ -406,12 +407,11 @@ def historial_compras(request):
         'detallesComprasCliente': detalleCompras,
         'envios': envios,
     }
-
     return render(request, 'pedido.html', datos)
 
 
-# GESTIONES
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaInicioGestiones(request):
     # OBTENER EL MUEBLE MAS COMPRADO
     acumulado = {}
@@ -478,11 +478,8 @@ def paginaInicioGestiones(request):
     return render(request,'gestiones/inicioGestiones.html',datos)
 
 
-
-
-
-
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionMuebles(request):
     muebles = mueble.objects.all()
     datos = {
@@ -490,7 +487,8 @@ def paginaGestionMuebles(request):
     }
     return render(request,'gestiones/administracion/vendedor/gestionMuebles.html',datos)
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def modificar_mueble(request, id):
 
     muebleDatos = mueble.objects.get(id=id)
@@ -535,7 +533,8 @@ def modificar_mueble(request, id):
 
     )
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def crearMueble(request):
     datos = {
             'formularioMueble' : muebleForm(),
@@ -551,12 +550,14 @@ def crearMueble(request):
             return redirect('IDpaginaGestionMuebles')
     return render(request,'gestiones/administracion/vendedor/crearMueble.html',datos)
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionPedidos(request):
     return render(request,'gestiones/administracion/gestionPedidos.html')
 
 # GESTION DE COMPRAS
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionCompras(request):
     comprasTotales = compra.objects.all()
     detalleComprasTotales = detalleCompra.objects.all()
@@ -567,7 +568,8 @@ def paginaGestionCompras(request):
     return render(request,'gestiones/administracion/gestionPedidos.html',datos)
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def actualizarPedidos(request,id):
     detalleComprado = detalleCompra.objects.get(idDetalle=id)
     formulario = detalleCompraForm(request.POST,instance=detalleComprado)
@@ -597,7 +599,8 @@ def actualizarPedidos(request,id):
 
     )
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionUsuarios(request):
     usuarios = User.objects.all()
 
@@ -609,8 +612,8 @@ def paginaGestionUsuarios(request):
 
 
 
-# GESTION CREAR CUENTA
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionCrearCuenta(request):
     datos = {
         'formularioCuenta' : perfilClienteform(),
@@ -620,6 +623,9 @@ def paginaGestionCrearCuenta(request):
 
     return render(request, 'gestiones/administracion/administrador/gestionCrearCuenta.html',datos)
 
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['clientes']).exists(),login_url='IDindex')
 def crear_preferencia_mp(request):
 
     carritoCompra = request.session.get('carritoCompra', {})
@@ -699,6 +705,7 @@ from django.utils import timezone
 MOCKAPI_ENVIOS_URL = "https://6a18c0ad23c3626470abfd36.mockapi.io/api/pequeMundo/Envios"
 
 
+
 def actualizar_estado_envio_mockapi(envio_id, nuevo_estado):
     url = f"{MOCKAPI_ENVIOS_URL}/{envio_id}"
 
@@ -708,12 +715,17 @@ def actualizar_estado_envio_mockapi(envio_id, nuevo_estado):
         print("Error actualizando envio:", e)
 
 
+
+
 def iniciar_actualizacion_envio(envio_id):
     threading.Timer(5, actualizar_estado_envio_mockapi, args=[envio_id, "Empaquetado"]).start()
     threading.Timer(10, actualizar_estado_envio_mockapi, args=[envio_id, "Preparado"]).start()
     threading.Timer(15, actualizar_estado_envio_mockapi, args=[envio_id, "En transito"]).start()
 
-
+from django.utils import timezone
+from zoneinfo import ZoneInfo
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['clientes']).exists(),login_url='IDindex')
 def pago_exitoso(request):
     """MercadoPago redirige aquí cuando el pago es aprobado."""
 
@@ -761,7 +773,9 @@ def pago_exitoso(request):
         if producto.cantidad <= 0:
             producto.cantidad = 0
             producto.disponiblidad = disponiblidadMueble.objects.get(id=2)
-
+        fecha_chile = timezone.now().astimezone(
+            ZoneInfo("America/Santiago")
+        )
         data = {
             "DetalleCompra": detalle.pk,
             "Mueble": {
@@ -774,7 +788,7 @@ def pago_exitoso(request):
             "Direccion": cliente.direccion,
             "Cliente": cliente.nombre,
             "Telefono": cliente.telefono,
-            "FechaEntraga": timezone.now().isoformat(),
+            "FechaEntrega": fecha_chile.isoformat(),            
             "EstadoEnvio": "Solicitado",
             "Compra": carrito.pk
         }
@@ -804,51 +818,24 @@ def pago_exitoso(request):
     return redirect('IDhistorial_compras')
 
 
-def historial_compras(request):
-    compras = compra.objects.all()
-    detalleCompras = detalleCompra.objects.all()
 
-    try:
-        respuesta = requests.get(MOCKAPI_ENVIOS_URL, timeout=10)
-
-        if respuesta.status_code == 200:
-            envios = respuesta.json()
-
-            for envio in envios:
-                try:
-                    envio["Compra"] = int(envio.get("Compra"))
-                except (TypeError, ValueError):
-                    pass
-
-                try:
-                    envio["DetalleCompra"] = int(envio.get("DetalleCompra"))
-                except (TypeError, ValueError):
-                    pass
-        else:
-            envios = []
-
-    except requests.RequestException:
-        envios = []
-
-    datos = {
-        'comprasCliente': compras,
-        'detallesComprasCliente': detalleCompras,
-        'envios': envios,
-    }
-
-    return render(request, 'pedido.html', datos)
-
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['clientes']).exists(),login_url='IDindex')
 def pago_fallido(request):
     messages.error(request, "El pago fue rechazado. Intenta nuevamente.")
     return redirect('ver_carrito')
 
 
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['clientes']).exists(),login_url='IDindex')
 def pago_pendiente(request):
     messages.warning(request, "Tu pago está pendiente de confirmación.")
     return redirect('IDhistorial_compras')
 
 
 @csrf_exempt
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['clientes']).exists(),login_url='IDindex')
 def webhook_mp(request):
     """MercadoPago notifica aquí los cambios de estado de pago."""
     if request.method == "POST":
@@ -881,7 +868,8 @@ def webhook_mp(request):
 
 
 # GESTIÓN DE COMUNAS
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionComunas(request):
     comunas_list = comuna.objects.all()
     
@@ -892,7 +880,8 @@ def paginaGestionComunas(request):
     return render(request, 'gestiones/administracion/administrador/gestionComunas.html', datos)
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionCrearComuna(request):
     if request.method == 'POST':
         descripcion = request.POST.get('descripcion')
@@ -907,7 +896,8 @@ def paginaGestionCrearComuna(request):
     return render(request, 'gestiones/administracion/administrador/gestionCrearComuna.html')
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEditarComuna(request, id):
     try:
         comuna_obj = comuna.objects.get(id=id)
@@ -932,7 +922,8 @@ def paginaGestionEditarComuna(request, id):
     return render(request, 'gestiones/administracion/administrador/gestionEditarComuna.html', datos)
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEliminarComuna(request, id):
     try:
         comuna_obj = comuna.objects.get(id=id)
@@ -945,7 +936,8 @@ def paginaGestionEliminarComuna(request, id):
 
 
 # GESTIÓN DE TIPOS DE ENVÍO
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionTiposEnvio(request):
     tipos_envio_list = tipoEnvio.objects.all()
     
@@ -956,7 +948,8 @@ def paginaGestionTiposEnvio(request):
     return render(request, 'gestiones/administracion/administrador/gestionTiposEnvio.html', datos)
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionCrearTipoEnvio(request):
     if request.method == 'POST':
         descripcion = request.POST.get('descripcion')
@@ -971,7 +964,8 @@ def paginaGestionCrearTipoEnvio(request):
     return render(request, 'gestiones/administracion/administrador/gestionCrearTipoEnvio.html')
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEditarTipoEnvio(request, id):
     try:
         tipo_envio_obj = tipoEnvio.objects.get(id=id)
@@ -997,7 +991,8 @@ def paginaGestionEditarTipoEnvio(request, id):
 
 
 # GESTIÓN DE TIPOS DE CUENTA
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionTiposCuenta(request):
     tipos_cuenta_list = tipoCuenta.objects.all()
     
@@ -1008,7 +1003,8 @@ def paginaGestionTiposCuenta(request):
     return render(request, 'gestiones/administracion/administrador/gestionTiposCuenta.html', datos)
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionCrearTipoCuenta(request):
     if request.method == 'POST':
         descripcion = request.POST.get('descripcion')
@@ -1023,7 +1019,8 @@ def paginaGestionCrearTipoCuenta(request):
     return render(request, 'gestiones/administracion/administrador/gestionCrearTipoCuenta.html')
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEditarTipoCuenta(request, id):
     try:
         tipo_cuenta_obj = tipoCuenta.objects.get(id=id)
@@ -1048,7 +1045,8 @@ def paginaGestionEditarTipoCuenta(request, id):
     return render(request, 'gestiones/administracion/administrador/gestionEditarTipoCuenta.html', datos)
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEliminarTipoCuenta(request, id):
     try:
         tipo_cuenta_obj = tipoCuenta.objects.get(id=id)
@@ -1061,7 +1059,8 @@ def paginaGestionEliminarTipoCuenta(request, id):
 
 
 # GESTIÓN DE PERFILES DE USUARIOS
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionPerfiles(request):
     perfiles_list = Group.objects.all()
     
@@ -1072,7 +1071,8 @@ def paginaGestionPerfiles(request):
     return render(request, 'gestiones/administracion/administrador/gestionPerfiles.html', datos)
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionCrearPerfil(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
@@ -1087,7 +1087,8 @@ def paginaGestionCrearPerfil(request):
     return render(request, 'gestiones/administracion/administrador/gestionCrearPerfil.html')
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEditarPerfil(request, id):
     try:
         perfil_obj = Group.objects.get(id=id)
@@ -1112,7 +1113,8 @@ def paginaGestionEditarPerfil(request, id):
     return render(request, 'gestiones/administracion/administrador/gestionEditarPerfil.html', datos)
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEliminarPerfil(request, id):
     try:
         perfil_obj = Group.objects.get(id=id)
@@ -1125,7 +1127,8 @@ def paginaGestionEliminarPerfil(request, id):
 
 
 # GESTIÓN DE DISPONIBILIDADES
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionDisponibilidades(request):
     disponibilidades_list = disponiblidadMueble.objects.all()
     
@@ -1136,7 +1139,8 @@ def paginaGestionDisponibilidades(request):
     return render(request, 'gestiones/administracion/administrador/gestionDisponibilidades.html', datos)
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionCrearDisponibilidad(request):
     if request.method == 'POST':
         descripcion = request.POST.get('descripcion')
@@ -1151,7 +1155,8 @@ def paginaGestionCrearDisponibilidad(request):
     return render(request, 'gestiones/administracion/administrador/gestionCrearDisponibilidad.html')
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEditarDisponibilidad(request, id):
     try:
         disponibilidad_obj = disponiblidadMueble.objects.get(id=id)
@@ -1176,7 +1181,8 @@ def paginaGestionEditarDisponibilidad(request, id):
     return render(request, 'gestiones/administracion/administrador/gestionEditarDisponibilidad.html', datos)
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEliminarDisponibilidad(request, id):
     try:
         disponibilidad_obj = disponiblidadMueble.objects.get(id=id)
@@ -1189,7 +1195,8 @@ def paginaGestionEliminarDisponibilidad(request, id):
 
 
 # GESTIÓN DE CATEGORÍAS DE MUEBLES
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionCategoriasMuebles(request):
     categorias_list = categoriaMueble.objects.all()
     
@@ -1199,8 +1206,8 @@ def paginaGestionCategoriasMuebles(request):
     
     return render(request, 'gestiones/administracion/administrador/gestionCategoriasMuebles.html', datos)
 
-
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionCrearCategoriaMueble(request):
     if request.method == 'POST':
         descripcion = request.POST.get('descripcion')
@@ -1214,8 +1221,8 @@ def paginaGestionCrearCategoriaMueble(request):
     
     return render(request, 'gestiones/administracion/administrador/gestionCrearCategoriaMueble.html')
 
-
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEditarCategoriaMueble(request, id):
     try:
         categoria_obj = categoriaMueble.objects.get(id=id)
@@ -1240,7 +1247,8 @@ def paginaGestionEditarCategoriaMueble(request, id):
     return render(request, 'gestiones/administracion/administrador/gestionEditarCategoriaMueble.html', datos)
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEliminarCategoriaMueble(request, id):
     try:
         categoria_obj = categoriaMueble.objects.get(id=id)
@@ -1253,7 +1261,8 @@ def paginaGestionEliminarCategoriaMueble(request, id):
 
 
 # GESTIÓN DE ESTADOS DE MUEBLES
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEstadosMuebles(request):
     estados_list = estadoMueble.objects.all()
     
@@ -1264,7 +1273,8 @@ def paginaGestionEstadosMuebles(request):
     return render(request, 'gestiones/administracion/administrador/gestionEstadosMuebles.html', datos)
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionCrearEstadoMueble(request):
     if request.method == 'POST':
         descripcion = request.POST.get('descripcion')
@@ -1279,7 +1289,8 @@ def paginaGestionCrearEstadoMueble(request):
     return render(request, 'gestiones/administracion/administrador/gestionCrearEstadoMueble.html')
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEditarEstadoMueble(request, id):
     try:
         estado_obj = estadoMueble.objects.get(id=id)
@@ -1304,7 +1315,8 @@ def paginaGestionEditarEstadoMueble(request, id):
     return render(request, 'gestiones/administracion/administrador/gestionEditarEstadoMueble.html', datos)
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEliminarEstadoMueble(request, id):
     try:
         estado_obj = estadoMueble.objects.get(id=id)
@@ -1317,7 +1329,8 @@ def paginaGestionEliminarEstadoMueble(request, id):
 
 
 # GESTIÓN DE ESTADOS DE PRODUCTOS COMPRADOS
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEstadosProductosComprados(request):
     estados_list = estadoProductoComprado.objects.all()
     
@@ -1328,7 +1341,8 @@ def paginaGestionEstadosProductosComprados(request):
     return render(request, 'gestiones/administracion/administrador/gestionEstadosProductosComprados.html', datos)
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionCrearEstadoProductoComprado(request):
     if request.method == 'POST':
         descripcion = request.POST.get('descripcion')
@@ -1343,7 +1357,8 @@ def paginaGestionCrearEstadoProductoComprado(request):
     return render(request, 'gestiones/administracion/administrador/gestionCrearEstadoProductoComprado.html')
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEditarEstadoProductoComprado(request, id):
     try:
         estado_obj = estadoProductoComprado.objects.get(idestadocompra=id)
@@ -1368,7 +1383,8 @@ def paginaGestionEditarEstadoProductoComprado(request, id):
     return render(request, 'gestiones/administracion/administrador/gestionEditarEstadoProductoComprado.html', datos)
 
 
-@admin_required
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionEliminarEstadoProductoComprado(request, id):
     try:
         estado_obj = estadoProductoComprado.objects.get(idestadocompra=id)

@@ -11,7 +11,6 @@ urlpatterns = [
 
 
     path('historial_compras/', historial_compras,name='IDhistorial_compras'),
-    path('gestion-muebles/', gestion_muebles,name='gestion_muebles'),
     path('crearCuenta/', paginaCrearCuenta,name='IDpaginaCrearCuenta'),
 
 
