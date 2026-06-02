@@ -8,7 +8,6 @@ import django
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pequeMundo.settings")
-django.setup()
 
 from app.models import mueble
 
@@ -32,7 +31,6 @@ def serializar_mueble(obj):
         "disponiblidad": obj.disponiblidad_id,
         "categoria_mueble": obj.categoria_mueble_id
     }
-
 
 class ApiMuebles(BaseHTTPRequestHandler):
     def enviar_respuesta(self, codigo, datos):
@@ -72,23 +70,12 @@ class ApiMuebles(BaseHTTPRequestHandler):
 
     def do_GET(self):
         ruta = urlparse(self.path).path
-
         if ruta == "/muebles":
             lista_muebles = [serializar_mueble(item) for item in mueble.objects.all()]
             self.enviar_respuesta(200, lista_muebles)
             return
-
-        mueble_id = self.obtener_id_desde_ruta()
-        if mueble_id is not None:
-            obj = buscar_mueble_por_id(mueble_id)
-            if obj:
-                self.enviar_respuesta(200, serializar_mueble(obj))
-            else:
-                self.enviar_respuesta(404, {"error": "Mueble no encontrado"})
-            return
-
         self.enviar_respuesta(404, {"error": "Ruta no encontrada"})
-
+ 
     def do_POST(self):
         ruta = urlparse(self.path).path
 
@@ -170,12 +157,18 @@ class ApiMuebles(BaseHTTPRequestHandler):
         self.enviar_respuesta(200, {"mensaje": "Mueble eliminado"})
 
 
+
+
+
+
+
 def ejecutar_servidor():
     host = "127.0.0.1"
-    puerto = 8001
+    puerto = 8002
     servidor = HTTPServer((host, puerto), ApiMuebles)
 
     print(f"API REST funciona en http://{host}:{puerto}")
+
     try:
         servidor.serve_forever()
     except KeyboardInterrupt:
@@ -183,4 +176,5 @@ def ejecutar_servidor():
         servidor.server_close()
 
 
-ejecutar_servidor()
+if __name__ == "__main__":
+    ejecutar_servidor()

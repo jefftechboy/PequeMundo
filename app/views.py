@@ -2,7 +2,8 @@ import json
 from functools import wraps
 
 import mercadopago
-
+import requests
+from django.utils import timezone
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -380,18 +381,33 @@ def finalizar_compra(request):
         del request.session['carrito_id']
         messages.success(request,"Producto comprado")
 
-    return redirect('IDhistorial_compras',carritoCompra)
+    return redirect('IDhistorial_compras')
 
 # HISTORIAL DE PEDIDOS DEL CLIENTE
 def historial_compras(request):
     compras = compra.objects.all()
     detalleCompras = detalleCompra.objects.all()
-    datos = {
-        'comprasCliente' : compras,
-        'detallesComprasCliente' : detalleCompras,
-    }
-    return render(request,'pedido.html',datos)
 
+    url = "https://6a18c0ad23c3626470abfd36.mockapi.io/api/pequeMundo/Envios"
+
+    try:
+        respuesta = requests.get(url, timeout=10)
+
+        if respuesta.status_code == 200:
+            envios = respuesta.json()
+        else:
+            envios = []
+
+    except requests.RequestException:
+        envios = []
+
+    datos = {
+        'comprasCliente': compras,
+        'detallesComprasCliente': detalleCompras,
+        'envios': envios,
+    }
+
+    return render(request, 'pedido.html', datos)
 
 
 # GESTIONES
@@ -662,24 +678,53 @@ def crear_preferencia_mp(request):
 
     return redirect(init_point)
 
+
+
+import threading
+import requests
+
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.utils import timezone
+
+
+import threading
+import requests
+
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.utils import timezone
+
+
+MOCKAPI_ENVIOS_URL = "https://6a18c0ad23c3626470abfd36.mockapi.io/api/pequeMundo/Envios"
+
+
+def actualizar_estado_envio_mockapi(envio_id, nuevo_estado):
+    url = f"{MOCKAPI_ENVIOS_URL}/{envio_id}"
+
+    try:
+        requests.patch(url, json={"EstadoEnvio": nuevo_estado}, timeout=10)
+    except requests.RequestException as e:
+        print("Error actualizando envio:", e)
+
+
+def iniciar_actualizacion_envio(envio_id):
+    threading.Timer(5, actualizar_estado_envio_mockapi, args=[envio_id, "Empaquetado"]).start()
+    threading.Timer(10, actualizar_estado_envio_mockapi, args=[envio_id, "Preparado"]).start()
+    threading.Timer(15, actualizar_estado_envio_mockapi, args=[envio_id, "En transito"]).start()
+
+
 def pago_exitoso(request):
     """MercadoPago redirige aquí cuando el pago es aprobado."""
 
-    print("ENTRO A PAGO EXITOSO")
-    print("SESSION:", dict(request.session.items()))
-
     carritoCompra = request.session.get('carritoCompra', {})
-
-    print("CARRITO:", carritoCompra)
 
     if not carritoCompra:
         messages.error(request, "No hay productos en el carrito.")
         return redirect('ver_carrito')
 
     try:
-        cliente = cuenta.objects.get(
-            usuario_cuenta=request.user.id
-        )
+        cliente = cuenta.objects.get(usuario_cuenta=request.user.id)
     except cuenta.DoesNotExist:
         messages.error(request, 'No se encontró el perfil del cliente.')
         return redirect('IDpaginaPerfilCliente')
@@ -695,14 +740,14 @@ def pago_exitoso(request):
     for producto_id, cantidad in carritoCompra.items():
 
         try:
-            producto = mueble.objects.get(id=producto_id)
+            producto = mueble.objects.get(pk=producto_id)
         except mueble.DoesNotExist:
             continue
 
         cantidad = int(cantidad)
         subtotal = producto.precio * cantidad
 
-        detalleCompra.objects.create(
+        detalle = detalleCompra.objects.create(
             idCompra=carrito,
             idMueble=producto,
             cantidad=cantidad,
@@ -717,6 +762,36 @@ def pago_exitoso(request):
             producto.cantidad = 0
             producto.disponiblidad = disponiblidadMueble.objects.get(id=2)
 
+        data = {
+            "DetalleCompra": detalle.pk,
+            "Mueble": {
+                "id": producto.pk,
+                "nombre": producto.nombre,
+                "precio": float(producto.precio),
+                "cantidad": cantidad,
+                "subtotal": float(subtotal),
+            },
+            "Direccion": cliente.direccion,
+            "Cliente": cliente.nombre,
+            "Telefono": cliente.telefono,
+            "FechaEntraga": timezone.now().isoformat(),
+            "EstadoEnvio": "Solicitado",
+            "Compra": carrito.pk
+        }
+
+        try:
+            respuesta = requests.post(MOCKAPI_ENVIOS_URL, json=data, timeout=10)
+
+            if respuesta.status_code in [200, 201]:
+                envio_creado = respuesta.json()
+                envio_id = envio_creado.get("id")
+
+                if envio_id:
+                    iniciar_actualizacion_envio(envio_id)
+
+        except requests.RequestException as e:
+            print("Error enviando a MockAPI:", e)
+
         producto.save()
 
     carrito.total = total
@@ -725,13 +800,43 @@ def pago_exitoso(request):
     request.session.pop('carritoCompra', None)
     request.session.modified = True
 
-    print("COMPRA GUARDADA:", carrito.idCompra)
-    print("CARRITO BORRADO:", request.session.get('carritoCompra'))
-
     messages.success(request, "¡Pago realizado con éxito!")
     return redirect('IDhistorial_compras')
 
 
+def historial_compras(request):
+    compras = compra.objects.all()
+    detalleCompras = detalleCompra.objects.all()
+
+    try:
+        respuesta = requests.get(MOCKAPI_ENVIOS_URL, timeout=10)
+
+        if respuesta.status_code == 200:
+            envios = respuesta.json()
+
+            for envio in envios:
+                try:
+                    envio["Compra"] = int(envio.get("Compra"))
+                except (TypeError, ValueError):
+                    pass
+
+                try:
+                    envio["DetalleCompra"] = int(envio.get("DetalleCompra"))
+                except (TypeError, ValueError):
+                    pass
+        else:
+            envios = []
+
+    except requests.RequestException:
+        envios = []
+
+    datos = {
+        'comprasCliente': compras,
+        'detallesComprasCliente': detalleCompras,
+        'envios': envios,
+    }
+
+    return render(request, 'pedido.html', datos)
 
 def pago_fallido(request):
     messages.error(request, "El pago fue rechazado. Intenta nuevamente.")

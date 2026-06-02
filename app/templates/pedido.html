@@ -6,15 +6,13 @@
 
 <main class="detalle-page-custom">
 
-    <!-- CONTENEDOR SCROLL -->
     <div class="historial-container-custom">
 
         {% for compra in comprasCliente %}
             {% if compra.idCliente.usuario_cuenta == user.id %}
-                <!-- CARD -->
+
                 <section class="pedido-card-custom">
 
-                    <!-- HEADER -->
                     <div class="pedido-header-custom">
 
                         <h2 class="pedido-title-custom">
@@ -27,64 +25,83 @@
 
                     </div>
 
-                    <!-- BODY -->
                     <div class="pedido-body-custom">
-                                {% for detalle in detallesComprasCliente %}
-                                    {% if detalle.idCompra.idCompra == compra.idCompra %}
-                                        <!-- ITEM -->
-                                        <div class="pedido-item-custom">
-                
-                                            <!-- IZQUIERDA -->
-                                            <div class="pedido-left-custom">
-                
-                                                <!-- FOTO -->
-                                                <div class="pedido-img-container-custom">
-                
-                                                    <img
-                                                        src="{{ detalle.idMueble.foto.url }}"
-                                                        alt="{{ detalle.idMueble.nombre }}"
-                                                        class="pedido-img-custom"
-                                                    >
-                
-                                                </div>
-                
-                                                <!-- INFO -->
-                                                <div class="pedido-info-custom">
-                
-                                                    <h3 class="pedido-producto-custom">
-                                                        {{ detalle.idMueble.nombre }}
-                                                    </h3>
-                
-                                                    <p class="pedido-descripcion-custom">
-                                                        {{ detalle.idMueble.descripcion }}
-                                                    </p>
-                
-                                                </div>
-                
-                                            </div>
-                
-                                            <!-- DERECHA -->
-                                            <div class="pedido-right-custom">
-                
-                                                <p class="pedido-cantidad-custom">
-                                                    Cantidad:
-                                                    <strong>{{ detalle.cantidad }}</strong>
-                                                </p>
-                
-                                                <p class="pedido-subtotal-custom">
-                                                    ${{ detalle.subtotal }}
-                                                </p>
-                
-                                            </div>
-                
+
+                        {% for detalle in detallesComprasCliente %}
+                            {% if detalle.idCompra.pk == compra.pk %}
+
+                                <div class="pedido-item-custom">
+
+                                    <div class="pedido-left-custom">
+
+                                        <div class="pedido-img-container-custom">
+                                            <img
+                                                src="{{ detalle.idMueble.foto.url }}"
+                                                alt="{{ detalle.idMueble.nombre }}"
+                                                class="pedido-img-custom"
+                                            >
                                         </div>
-                                    {% endif %}
-                                {% endfor %}
+
+                                        <div class="pedido-info-custom">
+
+                                            <h3 class="pedido-producto-custom">
+                                                {{ detalle.idMueble.nombre }}
+                                            </h3>
+
+                                            <p class="pedido-descripcion-custom">
+                                                {{ detalle.idMueble.descripcion }}
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="pedido-right-custom">
+
+                                        <p class="pedido-cantidad-custom">
+                                            Cantidad:
+                                            <strong>{{ detalle.cantidad }}</strong>
+                                        </p>
+
+                                        <p class="pedido-subtotal-custom">
+                                            ${{ detalle.subtotal }}
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            {% endif %}
+                        {% endfor %}
 
                     </div>
 
-                    <!-- FOOTER -->
                     <div class="pedido-footer-custom">
+
+                        <div class="pedido-estado-envio-custom">
+
+                            {% for detalle in detallesComprasCliente %}
+                                {% if detalle.idCompra.pk == compra.pk %}
+
+                                    {% for envio in envios %}
+                                        {% if envio.Compra == compra.pk and envio.DetalleCompra == detalle.pk %}
+
+                                            <p>
+                                                Estado de envio ({{ detalle.idMueble.nombre }}):
+                                                <strong
+                                                    class="estado-envio-js"
+                                                    data-compra="{{ compra.pk }}"
+                                                    data-detalle="{{ detalle.pk }}"
+                                                >{{ envio.EstadoEnvio }}</strong>
+                                            </p>
+
+                                        {% endif %}
+                                    {% endfor %}
+
+                                {% endif %}
+                            {% endfor %}
+
+                        </div>
 
                         <h3 class="pedido-total-custom">
                             Total:
@@ -101,6 +118,35 @@
     </div>
 
 </main>
+
+<script>
+    async function actualizarEstadosEnvio() {
+        try {
+            const response = await fetch("https://6a18c0ad23c3626470abfd36.mockapi.io/api/pequeMundo/Envios");
+            const envios = await response.json();
+
+            document.querySelectorAll(".estado-envio-js").forEach(function (estadoHtml) {
+                const compra = estadoHtml.dataset.compra;
+                const detalle = estadoHtml.dataset.detalle;
+
+                const envio = envios.find(function (item) {
+                    return String(item.Compra) === String(compra)
+                        && String(item.DetalleCompra) === String(detalle);
+                });
+
+                if (envio) {
+                    estadoHtml.textContent = envio.EstadoEnvio;
+                }
+            });
+
+        } catch (error) {
+            console.error("Error actualizando estados de envio:", error);
+        }
+    }
+
+    actualizarEstadosEnvio();
+    setInterval(actualizarEstadosEnvio, 5000);
+</script>
 
 {% endblock %}
 
