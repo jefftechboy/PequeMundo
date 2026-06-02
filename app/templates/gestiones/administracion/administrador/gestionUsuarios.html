@@ -15,7 +15,6 @@
                 <th>ID</th>
                 <th>Grupo</th>
                 <th>Editar grupo</th>
-                <th>Editar contraseña</th>
             </tr>
         </thead>
 
@@ -44,20 +43,13 @@
                     </td>
 
                     <td>
-
-                        <a href="" class="btn btn-warning btn-sm">
-                            Editar Grupo
+                        <a href="{% url 'IDpaginaGestionEditarUsuario' x.id %}"
+                        class="btn btn-warning btn-sm">
+                            Editar Datos
                         </a>
+                        
 
                     </td>
-                    <td>
-
-                        <a href="" class="btn btn-warning btn-sm">
-                            Editar contraseña
-                        </a>
-
-                    </td>
-
                 </tr>
 
                 {% endif %}

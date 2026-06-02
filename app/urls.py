@@ -43,6 +43,7 @@ urlpatterns = [
     # PAGINA GESTION USUARIOS
     path('paginaGestionUsuarios/', paginaGestionUsuarios,name='IDpaginaGestionUsuarios'),
     path('paginaGestionCrearCuenta/', paginaGestionCrearCuenta,name='IDpaginaGestionCrearCuenta'),
+    path('paginaGestionEditarUsuario/<int:id>/', paginaGestionEditarUsuario,name='IDpaginaGestionEditarUsuario'),
    
     # PAGINA GESTION COMUNAS
     path('paginaGestionComunas/', paginaGestionComunas, name='IDpaginaGestionComunas'),
@@ -97,4 +98,7 @@ urlpatterns = [
     path('pago/fallido/', pago_fallido, name='pago_fallido'),
     path('pago/pendiente/', pago_pendiente, name='pago_pendiente'),
     path('pago/webhook/', webhook_mp, name='webhook_mp'),
+
+    #REPORTE DE FINANZAS
+    path('reporteDeFinanzas', reporteDeFinanzas, name='IDreporteDeFinanzas'),
 ]

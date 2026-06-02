@@ -1,0 +1,345 @@
+<style>
+    @page {
+        size: A4;
+        margin: 1.5cm;
+    }
+
+    body{
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 10px;
+        color: #4E342E;
+    }
+
+    .titulo{
+        text-align:center;
+        font-size:24px;
+        font-weight:bold;
+        color:#5B3A29;
+        margin-bottom:5px;
+    }
+
+    .subtitulo{
+        text-align:center;
+        color:#8D6E63;
+        margin-bottom:15px;
+    }
+
+    hr{
+        border:none;
+        border-top:2px solid #E6D5B8;
+        margin-bottom:15px;
+    }
+
+    .section-title{
+        background:#5B3A29;
+        color:white;
+        padding:10px;
+        font-size:13px;
+        font-weight:bold;
+        margin-top:15px;
+        margin-bottom:10px;
+    }
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+        margin-bottom:15px;
+    }
+
+    th{
+        background:#5B3A29;
+        color:white;
+        padding:8px;
+        text-align:center;
+        border:1px solid #5B3A29;
+    }
+
+    td{
+        border:1px solid #D8D8D8;
+        padding:7px;
+        text-align:center;
+    }
+
+    tr:nth-child(even){
+        background:#FAF7F2;
+    }
+
+    .resumen-box{
+        background:#F5EFE6;
+        padding:10px;
+    }
+
+    .resumen-titulo{
+        font-size:11px;
+        font-weight:bold;
+        color:#5B3A29;
+    }
+
+    .resumen-valor{
+        font-size:24px;
+        font-weight:bold;
+        color:#5B3A29;
+        margin-top:5px;
+    }
+
+    .kpi{
+        background:#FFF7DD;
+        padding:10px;
+        font-weight:bold;
+    }
+
+    .kpi-valor{
+        margin-top:5px;
+        font-size:18px;
+        color:#5B3A29;
+    }
+
+    .foto{
+        width:55px;
+        height:55px;
+        object-fit:cover;
+    }
+
+    .subtotal{
+        text-align:right;
+        font-weight:bold;
+    }
+
+    .footer{
+        text-align:center;
+        color:#888;
+        margin-top:20px;
+        font-size:9px;
+    }
+</style>
+
+<div class="titulo">
+    REPORTE MENSUAL FINANCIERO PEQUEMUNDO
+    
+</div>
+
+<div class="subtitulo">
+    Generado el {{ fecha_chile }}
+</div>
+
+<hr>
+
+<div class="section-title">
+     Resumen General
+</div>
+
+<table>
+    <tr>
+        <td width="100%" class="resumen-box">
+            <div class="resumen-titulo">
+                 Total de dinero Recaudado
+            </div>
+
+            <div class="resumen-valor">
+                ${{ totalDineroRecaudado }}
+            </div>
+        </td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <td width="33%" class="kpi">
+            Mueble mas vendido
+            <div class="kpi-valor">
+                {{ masVendidos.0.0 }}
+            </div>
+        </td>
+
+        <td width="33%" class="kpi">
+             Cantidad de muebles
+            <div class="kpi-valor">
+                {{ muebles|length }}
+            </div>
+        </td>
+
+        <td width="33%" class="kpi">
+             Cantidad de compas realizadas
+            <div class="kpi-valor">
+                {{ ventas|length }}
+            </div>
+        </td>
+
+    </tr>
+</table>
+
+<div class="section-title">
+     Cantidad Vendida por Mueble
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Mueble</th>
+            <th>Unidades Vendidas</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for nombre, cantidad in MueblesVendidos.items %}
+        <tr>
+            <td>{{ nombre }}</td>
+            <td>{{ cantidad }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="section-title">
+     Ranking de Ventas
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Muebles Más Vendidos</th>
+            <th>Unidades</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for mueble, cantidad in masVendidos %}
+        <tr>
+            <td>{{ mueble }}</td>
+            <td>{{ cantidad }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<table>
+    <thead>
+        <tr>
+            <th>Muebles Menos Vendidos</th>
+            <th>Unidades</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for mueble, cantidad in menosVendidos %}
+        <tr>
+            <td>{{ mueble }}</td>
+            <td>{{ cantidad }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="section-title">
+     Inventario Disponible
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Foto</th>
+            <th>Nombre</th>
+            <th>Stock</th>
+            <th>Precio</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for mueble in muebles %}
+            {% if mueble.disponiblidad.descripcion == 'En stock' %}
+            <tr>
+                <td>
+                    <img src="{{ mueble.foto.path }}" class="foto">
+                </td>
+                <td>{{ mueble.nombre }}</td>
+                <td>{{ mueble.cantidad }}</td>
+                <td>${{ mueble.precio }}</td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="section-title">
+     Inventario Sin Stock
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Foto</th>
+            <th>Nombre</th>
+            <th>Stock</th>
+            <th>Precio</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for mueble in muebles %}
+            {% if mueble.disponiblidad.descripcion == 'No disponible' %}
+            <tr>
+                <td>
+                    <img src="{{ mueble.foto.path }}" class="foto">
+                </td>
+                <td>{{ mueble.nombre }}</td>
+                <td>{{ mueble.cantidad }}</td>
+                <td>${{ mueble.precio }}</td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="section-title">
+     Detalle de Ventas
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th width="18%">Fecha</th>
+            <th width="32%">Mueble</th>
+            <th width="10%">Cantidad</th>
+            <th width="25%">Cliente</th>
+            <th width="15%">Subtotal</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for venta in ventas %}
+            {% for detalle in detalleCompras %}
+                {% if venta.idCompra == detalle.idCompra.idCompra %}
+                <tr>
+
+                    <td>
+                        {{ venta.fecha|date:"d/m/Y H:i" }}
+                    </td>
+
+                    <td>
+                        {{ detalle.idMueble.descripcion }}
+                    </td>
+
+                    <td>
+                        {{ detalle.cantidad }}
+                    </td>
+
+                    <td>
+                        {{ venta.idCliente.nombre }}
+                    </td>
+
+                    <td class="subtotal">
+                        ${{ detalle.subtotal }}
+                    </td>
+
+                </tr>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+
+    </tbody>
+</table>
+
+<div class="footer">
+    PequeMundo © Reporte Financiero
+</div>

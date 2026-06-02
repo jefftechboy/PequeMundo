@@ -1,6 +1,6 @@
 import json
+from .forms import *
 from functools import wraps
-
 import mercadopago
 import requests
 from django.utils import timezone
@@ -13,8 +13,16 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
+import threading
 
-from .forms import *
+
+
+
+
+
+
+
+
 
 
 # Create your views here.
@@ -612,16 +620,60 @@ def paginaGestionUsuarios(request):
 
 
 
+
+
+
+
+
+
 @login_required
 @user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
 def paginaGestionCrearCuenta(request):
+    if request.method == 'POST':
+
+        formulario = UserCreationForm(request.POST)
+
+        if formulario.is_valid():
+
+            formulario.save()
+            
+            user = authenticate(
+                username=formulario.cleaned_data['username'],
+                password=formulario.cleaned_data['password1']
+            )
+            # obtener grupo
+            grupo = Group.objects.get(name='Asignacion_Pendiente')
+
+            # agregar usuario al grupo
+            user.groups.add(grupo)
+            return redirect("IDpaginaGestionUsuarios")
+
+    else:
+        formulario = UserCreationForm()
+
     datos = {
-        'formularioCuenta' : perfilClienteform(),
-        'formularioUser' : UserCreationForm(),
-
+        'formulario_de_usuario': formulario
     }
-
     return render(request, 'gestiones/administracion/administrador/gestionCrearCuenta.html',datos)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @login_required
@@ -684,22 +736,6 @@ def crear_preferencia_mp(request):
 
     return redirect(init_point)
 
-
-
-import threading
-import requests
-
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.utils import timezone
-
-
-import threading
-import requests
-
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.utils import timezone
 
 
 MOCKAPI_ENVIOS_URL = "https://6a18c0ad23c3626470abfd36.mockapi.io/api/pequeMundo/Envios"
@@ -1394,3 +1430,127 @@ def paginaGestionEliminarEstadoProductoComprado(request, id):
         messages.error(request, 'El estado no existe.')
     
     return redirect('IDpaginaGestionEstadosProductosComprados')
+
+
+
+
+
+@login_required
+@user_passes_test(lambda u: u.groups.filter(name__in=['admin', 'vendedores', 'finanzas']).exists(),login_url='IDindex')
+
+
+
+
+def paginaGestionEditarUsuario(request, id):
+    usuario = User.objects.get(id=id)
+    grupos = Group.objects.all()
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        grupo_id = request.POST.get('grupo')
+
+        usuario.username = username
+
+        if password1:
+            if password1 != password2:
+                messages.error(request, 'Las contraseñas no coinciden.')
+                return redirect('IDpaginaGestionEditarUsuario', id=id)
+
+            usuario.set_password(password1)
+
+        # Cambiar grupo
+        if grupo_id:
+            grupo = Group.objects.get(id=grupo_id)
+
+            # Elimina grupos anteriores
+            usuario.groups.clear()
+
+            # Agrega el nuevo grupo
+            usuario.groups.add(grupo)
+
+        usuario.save()
+
+        messages.success(request, 'Usuario actualizado correctamente.')
+        return redirect('IDpaginaGestionUsuarios')
+
+    return render(
+        request,
+        'gestiones/administracion/administrador/gestionEditarUsuario.html',
+        {
+            'usuario': usuario,
+            'grupos': grupos
+        }
+    )
+
+
+
+
+
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+
+def reporteDeFinanzas(request):
+    fecha_chile = timezone.now().astimezone( ZoneInfo("America/Santiago"))
+    ventas = compra.objects.filter(
+        fecha__year=fecha_chile.year,
+        fecha__month=fecha_chile.month
+    ).order_by('-fecha')
+    detalleCompras = detalleCompra.objects.all()
+    muebles = mueble.objects.all()
+    total = sum(v.total for v in ventas)
+    totalDecompras = 0
+    totalDineroRecaudado = 0
+    MueblesVendidos = {}
+
+    for x in ventas:
+        totalDecompras += 1
+        totalDineroRecaudado += x.total
+
+        for d in detalleCompras:
+            if x.idCompra == d.idCompra.idCompra:
+
+                nombre = d.idMueble.nombre
+
+                if nombre not in MueblesVendidos:
+                    MueblesVendidos[nombre] = 0
+
+                MueblesVendidos[nombre] += d.cantidad
+    # Cantidad máxima y mínima vendida
+        max_cantidad = max(MueblesVendidos.values())
+        min_cantidad = min(MueblesVendidos.values())
+
+        # Todos los muebles con la cantidad máxima
+        mas_vendidos = [
+            (nombre, cantidad)
+            for nombre, cantidad in MueblesVendidos.items()
+            if cantidad == max_cantidad
+        ]
+
+        menos_vendidos = [
+            (nombre, cantidad)
+            for nombre, cantidad in MueblesVendidos.items()
+            if cantidad == min_cantidad
+        ]             
+        datos = {
+            'ventas': ventas, 
+            'total': total,
+            'detalleCompras': detalleCompras,
+            'muebles': muebles,
+            'fecha_chile':fecha_chile,
+            'totalDecompras':totalDecompras,
+            'totalDineroRecaudado':totalDineroRecaudado,
+            'MueblesVendidos':MueblesVendidos,
+            'masVendidos':mas_vendidos,
+            'menosVendidos':menos_vendidos,
+        }
+    template = get_template('gestiones/reportesFinanzas.html')
+    html = template.render(datos)
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="reporte_finanzas.pdf"'
+
+    pisa.CreatePDF(html, dest=response)
+
+    return response
