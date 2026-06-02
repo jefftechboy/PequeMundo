@@ -1,0 +1,48 @@
+{% load static %}
+
+{% include 'gestiones/baseGestion/navbarGestion.html' %}
+
+<div class="container mt-4">
+    <a href="{% url 'IDpaginaGestionCrearPerfil' %}">
+        <button class="btn btn-success" style="margin-bottom: 10px;">
+            Crear Perfil de Usuario
+        </button>
+    </a>
+    <table class="table table-dark table-striped table-hover">
+
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Editar</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for perfil in perfiles %}
+
+                <tr>
+                    <td>{{ perfil.id }}</td>
+                    <td>{{ perfil.name }}</td>
+                    <td>
+                        <a href="{% url 'IDpaginaGestionEditarPerfil' perfil.id %}" class="btn btn-warning btn-sm">
+                            Editar
+                        </a>
+                    </td>
+                </tr>
+
+            {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No hay perfiles de usuario registrados.</td>
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% include 'gestiones/baseGestion/footerGestion.html' %}

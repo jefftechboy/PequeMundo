@@ -773,3 +773,503 @@ def webhook_mp(request):
                         pass
 
     return JsonResponse({"status": "ok"})
+
+
+# GESTIÓN DE COMUNAS
+@admin_required
+def paginaGestionComunas(request):
+    comunas_list = comuna.objects.all()
+    
+    datos = {
+        'comunas': comunas_list
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionComunas.html', datos)
+
+
+@admin_required
+def paginaGestionCrearComuna(request):
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        if descripcion:
+            nueva_comuna = comuna(descripcion=descripcion)
+            nueva_comuna.save()
+            messages.success(request, 'Comuna creada exitosamente.')
+            return redirect('IDpaginaGestionComunas')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    return render(request, 'gestiones/administracion/administrador/gestionCrearComuna.html')
+
+
+@admin_required
+def paginaGestionEditarComuna(request, id):
+    try:
+        comuna_obj = comuna.objects.get(id=id)
+    except comuna.DoesNotExist:
+        messages.error(request, 'La comuna no existe.')
+        return redirect('IDpaginaGestionComunas')
+    
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        if descripcion:
+            comuna_obj.descripcion = descripcion
+            comuna_obj.save()
+            messages.success(request, 'Comuna actualizada exitosamente.')
+            return redirect('IDpaginaGestionComunas')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    datos = {
+        'comuna': comuna_obj
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionEditarComuna.html', datos)
+
+
+@admin_required
+def paginaGestionEliminarComuna(request, id):
+    try:
+        comuna_obj = comuna.objects.get(id=id)
+        comuna_obj.delete()
+        messages.success(request, 'Comuna eliminada exitosamente.')
+    except comuna.DoesNotExist:
+        messages.error(request, 'La comuna no existe.')
+    
+    return redirect('IDpaginaGestionComunas')
+
+
+# GESTIÓN DE TIPOS DE ENVÍO
+@admin_required
+def paginaGestionTiposEnvio(request):
+    tipos_envio_list = tipoEnvio.objects.all()
+    
+    datos = {
+        'tipos_envio': tipos_envio_list
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionTiposEnvio.html', datos)
+
+
+@admin_required
+def paginaGestionCrearTipoEnvio(request):
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        if descripcion:
+            nuevo_tipo_envio = tipoEnvio(descripcion=descripcion)
+            nuevo_tipo_envio.save()
+            messages.success(request, 'Tipo de envío creado exitosamente.')
+            return redirect('IDpaginaGestionTiposEnvio')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    return render(request, 'gestiones/administracion/administrador/gestionCrearTipoEnvio.html')
+
+
+@admin_required
+def paginaGestionEditarTipoEnvio(request, id):
+    try:
+        tipo_envio_obj = tipoEnvio.objects.get(id=id)
+    except tipoEnvio.DoesNotExist:
+        messages.error(request, 'El tipo de envío no existe.')
+        return redirect('IDpaginaGestionTiposEnvio')
+    
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        if descripcion:
+            tipo_envio_obj.descripcion = descripcion
+            tipo_envio_obj.save()
+            messages.success(request, 'Tipo de envío actualizado exitosamente.')
+            return redirect('IDpaginaGestionTiposEnvio')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    datos = {
+        'tipo_envio': tipo_envio_obj
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionEditarTipoEnvio.html', datos)
+
+
+# GESTIÓN DE TIPOS DE CUENTA
+@admin_required
+def paginaGestionTiposCuenta(request):
+    tipos_cuenta_list = tipoCuenta.objects.all()
+    
+    datos = {
+        'tipos_cuenta': tipos_cuenta_list
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionTiposCuenta.html', datos)
+
+
+@admin_required
+def paginaGestionCrearTipoCuenta(request):
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        if descripcion:
+            nuevo_tipo_cuenta = tipoCuenta(descripcion=descripcion)
+            nuevo_tipo_cuenta.save()
+            messages.success(request, 'Tipo de cuenta creado exitosamente.')
+            return redirect('IDpaginaGestionTiposCuenta')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    return render(request, 'gestiones/administracion/administrador/gestionCrearTipoCuenta.html')
+
+
+@admin_required
+def paginaGestionEditarTipoCuenta(request, id):
+    try:
+        tipo_cuenta_obj = tipoCuenta.objects.get(id=id)
+    except tipoCuenta.DoesNotExist:
+        messages.error(request, 'El tipo de cuenta no existe.')
+        return redirect('IDpaginaGestionTiposCuenta')
+    
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        if descripcion:
+            tipo_cuenta_obj.descripcion = descripcion
+            tipo_cuenta_obj.save()
+            messages.success(request, 'Tipo de cuenta actualizado exitosamente.')
+            return redirect('IDpaginaGestionTiposCuenta')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    datos = {
+        'tipo_cuenta': tipo_cuenta_obj
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionEditarTipoCuenta.html', datos)
+
+
+@admin_required
+def paginaGestionEliminarTipoCuenta(request, id):
+    try:
+        tipo_cuenta_obj = tipoCuenta.objects.get(id=id)
+        tipo_cuenta_obj.delete()
+        messages.success(request, 'Tipo de cuenta eliminado exitosamente.')
+    except tipoCuenta.DoesNotExist:
+        messages.error(request, 'El tipo de cuenta no existe.')
+    
+    return redirect('IDpaginaGestionTiposCuenta')
+
+
+# GESTIÓN DE PERFILES DE USUARIOS
+@admin_required
+def paginaGestionPerfiles(request):
+    perfiles_list = Group.objects.all()
+    
+    datos = {
+        'perfiles': perfiles_list
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionPerfiles.html', datos)
+
+
+@admin_required
+def paginaGestionCrearPerfil(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        if nombre:
+            nuevo_perfil = Group(name=nombre)
+            nuevo_perfil.save()
+            messages.success(request, 'Perfil de usuario creado exitosamente.')
+            return redirect('IDpaginaGestionPerfiles')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    return render(request, 'gestiones/administracion/administrador/gestionCrearPerfil.html')
+
+
+@admin_required
+def paginaGestionEditarPerfil(request, id):
+    try:
+        perfil_obj = Group.objects.get(id=id)
+    except Group.DoesNotExist:
+        messages.error(request, 'El perfil no existe.')
+        return redirect('IDpaginaGestionPerfiles')
+    
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        if nombre:
+            perfil_obj.name = nombre
+            perfil_obj.save()
+            messages.success(request, 'Perfil actualizado exitosamente.')
+            return redirect('IDpaginaGestionPerfiles')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    datos = {
+        'perfil': perfil_obj
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionEditarPerfil.html', datos)
+
+
+@admin_required
+def paginaGestionEliminarPerfil(request, id):
+    try:
+        perfil_obj = Group.objects.get(id=id)
+        perfil_obj.delete()
+        messages.success(request, 'Perfil eliminado exitosamente.')
+    except Group.DoesNotExist:
+        messages.error(request, 'El perfil no existe.')
+    
+    return redirect('IDpaginaGestionPerfiles')
+
+
+# GESTIÓN DE DISPONIBILIDADES
+@admin_required
+def paginaGestionDisponibilidades(request):
+    disponibilidades_list = disponiblidadMueble.objects.all()
+    
+    datos = {
+        'disponibilidades': disponibilidades_list
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionDisponibilidades.html', datos)
+
+
+@admin_required
+def paginaGestionCrearDisponibilidad(request):
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        if descripcion:
+            nueva_disponibilidad = disponiblidadMueble(descripcion=descripcion)
+            nueva_disponibilidad.save()
+            messages.success(request, 'Disponibilidad creada exitosamente.')
+            return redirect('IDpaginaGestionDisponibilidades')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    return render(request, 'gestiones/administracion/administrador/gestionCrearDisponibilidad.html')
+
+
+@admin_required
+def paginaGestionEditarDisponibilidad(request, id):
+    try:
+        disponibilidad_obj = disponiblidadMueble.objects.get(id=id)
+    except disponiblidadMueble.DoesNotExist:
+        messages.error(request, 'La disponibilidad no existe.')
+        return redirect('IDpaginaGestionDisponibilidades')
+    
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        if descripcion:
+            disponibilidad_obj.descripcion = descripcion
+            disponibilidad_obj.save()
+            messages.success(request, 'Disponibilidad actualizada exitosamente.')
+            return redirect('IDpaginaGestionDisponibilidades')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    datos = {
+        'disponibilidad': disponibilidad_obj
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionEditarDisponibilidad.html', datos)
+
+
+@admin_required
+def paginaGestionEliminarDisponibilidad(request, id):
+    try:
+        disponibilidad_obj = disponiblidadMueble.objects.get(id=id)
+        disponibilidad_obj.delete()
+        messages.success(request, 'Disponibilidad eliminada exitosamente.')
+    except disponiblidadMueble.DoesNotExist:
+        messages.error(request, 'La disponibilidad no existe.')
+    
+    return redirect('IDpaginaGestionDisponibilidades')
+
+
+# GESTIÓN DE CATEGORÍAS DE MUEBLES
+@admin_required
+def paginaGestionCategoriasMuebles(request):
+    categorias_list = categoriaMueble.objects.all()
+    
+    datos = {
+        'categorias': categorias_list
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionCategoriasMuebles.html', datos)
+
+
+@admin_required
+def paginaGestionCrearCategoriaMueble(request):
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        if descripcion:
+            nueva_categoria = categoriaMueble(descripcion=descripcion)
+            nueva_categoria.save()
+            messages.success(request, 'Categoría de mueble creada exitosamente.')
+            return redirect('IDpaginaGestionCategoriasMuebles')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    return render(request, 'gestiones/administracion/administrador/gestionCrearCategoriaMueble.html')
+
+
+@admin_required
+def paginaGestionEditarCategoriaMueble(request, id):
+    try:
+        categoria_obj = categoriaMueble.objects.get(id=id)
+    except categoriaMueble.DoesNotExist:
+        messages.error(request, 'La categoría no existe.')
+        return redirect('IDpaginaGestionCategoriasMuebles')
+    
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        if descripcion:
+            categoria_obj.descripcion = descripcion
+            categoria_obj.save()
+            messages.success(request, 'Categoría actualizada exitosamente.')
+            return redirect('IDpaginaGestionCategoriasMuebles')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    datos = {
+        'categoria': categoria_obj
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionEditarCategoriaMueble.html', datos)
+
+
+@admin_required
+def paginaGestionEliminarCategoriaMueble(request, id):
+    try:
+        categoria_obj = categoriaMueble.objects.get(id=id)
+        categoria_obj.delete()
+        messages.success(request, 'Categoría eliminada exitosamente.')
+    except categoriaMueble.DoesNotExist:
+        messages.error(request, 'La categoría no existe.')
+    
+    return redirect('IDpaginaGestionCategoriasMuebles')
+
+
+# GESTIÓN DE ESTADOS DE MUEBLES
+@admin_required
+def paginaGestionEstadosMuebles(request):
+    estados_list = estadoMueble.objects.all()
+    
+    datos = {
+        'estados': estados_list
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionEstadosMuebles.html', datos)
+
+
+@admin_required
+def paginaGestionCrearEstadoMueble(request):
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        if descripcion:
+            nuevo_estado = estadoMueble(descripcion=descripcion)
+            nuevo_estado.save()
+            messages.success(request, 'Estado de mueble creado exitosamente.')
+            return redirect('IDpaginaGestionEstadosMuebles')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    return render(request, 'gestiones/administracion/administrador/gestionCrearEstadoMueble.html')
+
+
+@admin_required
+def paginaGestionEditarEstadoMueble(request, id):
+    try:
+        estado_obj = estadoMueble.objects.get(id=id)
+    except estadoMueble.DoesNotExist:
+        messages.error(request, 'El estado no existe.')
+        return redirect('IDpaginaGestionEstadosMuebles')
+    
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        if descripcion:
+            estado_obj.descripcion = descripcion
+            estado_obj.save()
+            messages.success(request, 'Estado actualizado exitosamente.')
+            return redirect('IDpaginaGestionEstadosMuebles')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    datos = {
+        'estado': estado_obj
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionEditarEstadoMueble.html', datos)
+
+
+@admin_required
+def paginaGestionEliminarEstadoMueble(request, id):
+    try:
+        estado_obj = estadoMueble.objects.get(id=id)
+        estado_obj.delete()
+        messages.success(request, 'Estado eliminado exitosamente.')
+    except estadoMueble.DoesNotExist:
+        messages.error(request, 'El estado no existe.')
+    
+    return redirect('IDpaginaGestionEstadosMuebles')
+
+
+# GESTIÓN DE ESTADOS DE PRODUCTOS COMPRADOS
+@admin_required
+def paginaGestionEstadosProductosComprados(request):
+    estados_list = estadoProductoComprado.objects.all()
+    
+    datos = {
+        'estados': estados_list
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionEstadosProductosComprados.html', datos)
+
+
+@admin_required
+def paginaGestionCrearEstadoProductoComprado(request):
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        if descripcion:
+            nuevo_estado = estadoProductoComprado(descripcion=descripcion)
+            nuevo_estado.save()
+            messages.success(request, 'Estado de producto comprado creado exitosamente.')
+            return redirect('IDpaginaGestionEstadosProductosComprados')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    return render(request, 'gestiones/administracion/administrador/gestionCrearEstadoProductoComprado.html')
+
+
+@admin_required
+def paginaGestionEditarEstadoProductoComprado(request, id):
+    try:
+        estado_obj = estadoProductoComprado.objects.get(idestadocompra=id)
+    except estadoProductoComprado.DoesNotExist:
+        messages.error(request, 'El estado no existe.')
+        return redirect('IDpaginaGestionEstadosProductosComprados')
+    
+    if request.method == 'POST':
+        descripcion = request.POST.get('descripcion')
+        if descripcion:
+            estado_obj.descripcion = descripcion
+            estado_obj.save()
+            messages.success(request, 'Estado actualizado exitosamente.')
+            return redirect('IDpaginaGestionEstadosProductosComprados')
+        else:
+            messages.error(request, 'Por favor, completa todos los campos.')
+    
+    datos = {
+        'estado': estado_obj
+    }
+    
+    return render(request, 'gestiones/administracion/administrador/gestionEditarEstadoProductoComprado.html', datos)
+
+
+@admin_required
+def paginaGestionEliminarEstadoProductoComprado(request, id):
+    try:
+        estado_obj = estadoProductoComprado.objects.get(idestadocompra=id)
+        estado_obj.delete()
+        messages.success(request, 'Estado eliminado exitosamente.')
+    except estadoProductoComprado.DoesNotExist:
+        messages.error(request, 'El estado no existe.')
+    
+    return redirect('IDpaginaGestionEstadosProductosComprados')

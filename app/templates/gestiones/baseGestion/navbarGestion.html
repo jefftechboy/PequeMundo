@@ -23,7 +23,15 @@
 
     <link rel="stylesheet" href="../../../static/css/gestionmuebles.css">
     <link rel="stylesheet" href="../../../static/css/gestionpedidos.css">
-    <link rel="stylesheet" href="../../../static/css/gestionpedidos.css">
+    <link rel="stylesheet" href="../../../static/css/gestionusuarios.css">
+    <link rel="stylesheet" href="../../../static/css/gestioncomunas.css">
+    <link rel="stylesheet" href="../../../static/css/gestiontiposenvio.css">
+    <link rel="stylesheet" href="../../../static/css/gestiontiposcuenta.css">
+    <link rel="stylesheet" href="../../../static/css/gestionperfiles.css">
+    <link rel="stylesheet" href="../../../static/css/gestiondisponibilidades.css">
+    <link rel="stylesheet" href="../../../static/css/gestioncategoriamuebles.css">
+    <link rel="stylesheet" href="../../../static/css/gestionestadosmuebles.css">
+    <link rel="stylesheet" href="../../../static/css/gestionestadosproductoscomprados.css">
     
 </head>
 
@@ -78,6 +86,62 @@
                         <a class="nav-item" href="{% url 'IDpaginaGestionUsuarios' %}">
                         <span>🚚</span>
                         <span>Usuarios</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-item" href="{% url 'IDpaginaGestionComunas' %}">
+                        <span>📍</span>
+                        <span>Comunas</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-item" href="{% url 'IDpaginaGestionTiposEnvio' %}">
+                        <span>🚚</span>
+                        <span>Tipos de Envío</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-item" href="{% url 'IDpaginaGestionTiposCuenta' %}">
+                        <span>💳</span>
+                        <span>Tipos de Cuenta</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-item" href="{% url 'IDpaginaGestionPerfiles' %}">
+                        <span>👥</span>
+                        <span>Perfiles</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-item" href="{% url 'IDpaginaGestionDisponibilidades' %}">
+                        <span>📦</span>
+                        <span>Disponibilidades</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-item" href="{% url 'IDpaginaGestionCategoriasMuebles' %}">
+                        <span>🏷️</span>
+                        <span>Categorías</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-item" href="{% url 'IDpaginaGestionEstadosMuebles' %}">
+                        <span>🔵</span>
+                        <span>Estados Muebles</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-item" href="{% url 'IDpaginaGestionEstadosProductosComprados' %}">
+                        <span>✅</span>
+                        <span>Estados Compra</span>
                         </a>
                     </li>
 
