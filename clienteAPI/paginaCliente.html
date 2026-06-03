@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Catálogo de muebles</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #eef2f5;
+            color: #1f2933;
+        }
+
+        .contenedor {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        h1 {
+            margin: 0 0 28px;
+            text-align: center;
+            font-size: 34px;
+            color: #18212f;
+        }
+
+        .grid-productos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #dde3ea;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 34px rgba(15, 23, 42, 0.14);
+        }
+
+        .card img,
+        .sin-imagen {
+            width: 100%;
+            height: 210px;
+            display: block;
+            background: #e5e7eb;
+        }
+
+        .card img {
+            object-fit: cover;
+        }
+
+        .sin-imagen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .card-body {
+            padding: 18px;
+        }
+
+        .card h3 {
+            margin: 0 0 8px;
+            font-size: 21px;
+            color: #111827;
+        }
+
+        .descripcion {
+            min-height: 42px;
+            margin: 0 0 14px;
+            color: #52616f;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+
+        .precio {
+            margin-bottom: 14px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #16834a;
+        }
+
+        .datos {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            padding-top: 12px;
+            border-top: 1px solid #edf0f3;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .badge {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .disponible {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .no-disponible {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .error {
+            text-align: center;
+            color: #991b1b;
+            background: #fee2e2;
+            padding: 14px;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .contenedor {
+                padding: 28px 16px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .grid-productos {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="contenedor">
+        <h1>Catálogo de muebles</h1>
+
+        <div id="productos" class="grid-productos"></div>
+    </main>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8002";        
+        const MEDIA_URL = "http://127.0.0.1:8000";
+        fetch(`${API_URL}/muebles`)
+            .then(respuesta => respuesta.json())
+            .then(muebles => {
+                const contenedor = document.getElementById("productos");
+
+                muebles.forEach(mueble => {
+                    const card = document.createElement("div");
+                    card.classList.add("card");
+
+                    const imagen = mueble.foto
+                        ? `<img src="${MEDIA_URL}${mueble.foto}" alt="${mueble.nombre}">`
+                        : `<div class="sin-imagen">Sin imagen</div>`;
+
+                    const disponibilidadTexto = mueble.disponiblidad === 1
+                        ? "Disponible"
+                        : "No disponible";
+
+                    const disponibilidadClase = mueble.disponiblidad === 1
+                        ? "disponible"
+                        : "no-disponible";
+
+                    card.innerHTML = `
+                        ${imagen}
+
+                        <div class="card-body">
+                            <h3>${mueble.nombre}</h3>
+
+                            <p class="descripcion">
+                                ${mueble.descripcion}
+                            </p>
+
+                            <div class="precio">
+                                $${mueble.precio}
+                            </div>
+
+                            <div class="datos">
+                                <span>Stock: ${mueble.cantidad}</span>
+                                <span>Categoría: ${mueble.categoria_mueble}</span>
+                            </div>
+
+                            <span class="badge ${disponibilidadClase}">
+                                ${disponibilidadTexto}
+                            </span>
+                        </div>
+                    `;
+
+                    contenedor.appendChild(card);
+                });
+            })
+            .catch(error => {
+                const contenedor = document.getElementById("productos");
+
+                contenedor.innerHTML = `
+                    <p class="error">
+                        Error cargando muebles. Revisa que la API esté encendida.
+                    </p>
+                `;
+
+                console.error("Error cargando muebles:", error);
+            });
+    </script>
+
+</body>
+</html>
