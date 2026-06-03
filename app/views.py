@@ -231,7 +231,8 @@ def actualizarPerfilCliente(request, id):
         datos
     )
 # CATALOGO
-@login_required
+
+
 def listarCatalogo(request):
     # TODOS LOS MUEBLES
     muebles = mueble.objects.all()
@@ -530,6 +531,9 @@ def modificar_mueble(request, id):
 
         'formularioMueble': formulario,
         'muebleDatos': muebleDatos,
+        'estados' : estadoMueble.objects.all(),
+        'disponibilidades' : disponiblidadMueble.objects.all(),
+        'categorias' : categoriaMueble.objects.all(),
 
     }
 
@@ -546,6 +550,9 @@ def modificar_mueble(request, id):
 def crearMueble(request):
     datos = {
             'formularioMueble' : muebleForm(),
+            'estados' : estadoMueble.objects.all(),
+            'disponibilidades' : disponiblidadMueble.objects.all(),
+            'categorias' : categoriaMueble.objects.all(),
         }
     if request.method == 'POST':
 

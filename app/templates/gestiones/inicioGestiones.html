@@ -4,8 +4,6 @@
 {% include 'gestiones/baseGestion/navbarGestion.html' %}
 
 
-        <!-- MAIN -->
-        <main class="main" id="contenido">
 
             <!-- HERO -->
             <section class="hero">
@@ -20,17 +18,17 @@
                         Administra muebles infantiles con una interfaz tierna y profesional.
                     </h3>
 
-                    <p>
+                    <p style="color: black;">
                         Este diseño usa el estilo visual de tus imágenes:
                         personajes suaves, tonos amarillos cálidos,
                         fondo claro y módulos simples para revisar inventario,
                         ventas y tareas del día.
                     </p>
 
-                    <div class="hero-actions">
+                    <div class="hero-actions" style="border-radius: 1px;">
 
-                        <a href="{% url 'IDreporteDeFinanzas' %}" class="btn btn-danger">
-                            <button class="btn btn-secondary" type="button">
+                        <a   href="{% url 'IDreporteDeFinanzas' %}" class="btn btn-warning"  style="border-color: rgba(0, 0, 0, 0.397);">
+                            <button type="button" style="background-color: transparent;">
                                 Exportar reporte
                             </button>
                         </a>
@@ -52,7 +50,7 @@
                             {{ mueble_mas_vendido }} ({{ mueble_mas_vendido_cantidad }}) con mayores ventas.
                         </h3>
 
-                        <p style="font-size: var(--text-sm); color: var(--color-text-muted);">
+                        <p style="color: black;">
                             Visual tomado de tu identidad para reforzar el catálogo principal.
                         </p>
 
@@ -103,7 +101,7 @@
                     <div class="section-head">
 
                         <div>
-                            <h3>Inventario general</h3>
+                            <h3 style="color: white;">Inventario general</h3>
 
                             <p>
                                 Vista rápida del catálogo con foco en disponibilidad.
@@ -125,12 +123,12 @@
                                 </tr>
                             </thead>
 
-                            <tbody>
+                            <tbody style="color: white;">
                                 <!-- Visualizacion productos -->
                                  {% for x in muebles %}
                                     <tr>
                                         <td>
-                                            <strong>{{ x.nombre }}</strong>
+                                            <strong >{{ x.nombre }}</strong>
                                         </td>
     
                                         <td>$ {{ x.precio }}</td>
@@ -165,7 +163,7 @@
                     <div class="section-head">
 
                         <div>
-                            <h3>Avance por línea</h3>
+                            <h3 style="color: white;">Avance por línea</h3>
 
                             <p>
                                 Seguimiento de metas comerciales por categoría.
@@ -178,7 +176,7 @@
         
                                 <div class="progress-item" style="margin-top: 20px;">
         
-                                    <header>
+                                    <header style="color: white;">
                                         <span>{{ key }}</span>
                                         <strong>$ {{ value }}</strong>
                                     </header>

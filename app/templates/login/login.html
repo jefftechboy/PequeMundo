@@ -5,23 +5,7 @@
         <section class="login-panel">
             <h1 id="authTitle">Iniciar sesión</h1>
             <p id="authDescription">Accede a tu cuenta para seguir comprando, ver pedidos y experiencias personalizadas.</p>
-            
-            <!-- Mostrar mensajes de error -->
-            {% if error %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endif %}
-            
-            <!-- Mostrar mensajes del sistema Django -->
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}" role="alert">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-            
+                    
             <form id="loginForm" method="POST" action="{% url 'IDpaginalogin' %}">
                 {% csrf_token %}
                 <div class="form-group">

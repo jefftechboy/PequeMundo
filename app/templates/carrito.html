@@ -186,20 +186,3 @@
 {% endblock %}
 
 {% include 'base/footer.html' %}
-
-{% if messages %}
-    {% for message in messages %}
-
-        <script>
-
-            Swal.fire({
-                icon: "{% if message.tags == 'success' %}success{% else %}error{% endif %}",
-                title: "{{ message }}",
-                showConfirmButton: false,
-                timer: 1500
-            });
-
-        </script>
-
-    {% endfor %}
-{% endif %}

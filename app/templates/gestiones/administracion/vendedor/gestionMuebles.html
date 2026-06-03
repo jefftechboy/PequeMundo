@@ -1,7 +1,6 @@
 {% load static %}
     {% include 'gestiones/baseGestion/navbarGestion.html' %}
     <!-- MAIN -->
-    <main class="main" id="contenido">
         <a href="{% url 'IDpaginaCrearMueble' %}">
             <button
                 type="button"
@@ -12,81 +11,62 @@
                 Crear Mueble
             </button>
         </a>
-
         <div class="table-wrap">
-
-            <table class="muebles-table">
-
+    
+            <table class="table table-dark table-striped table-hover">
+    
                 <thead>
-
+    
                     <tr>
                         <th>Nombre</th>
                         <th>Categoría</th>
                         <th>Precio</th>
                         <th>Stock</th>
                         <th>Estado</th>
-                        <th>Destacado</th>
                         <th class="actions-col">Acciones</th>
                     </tr>
-
+    
                 </thead>
-
+    
                 <tbody>
-
+    
                     {% for mueble in muebles %}
-
+    
                     <tr>
-
+    
                         <td data-label="Nombre">
                             {{ mueble.nombre }}
                         </td>
-
+    
                         <td data-label="Categoría">
                             {{ mueble.categoria_mueble.descripcion }}
                         </td>
-
+    
                         <td data-label="Precio">
                             ${{ mueble.precio }}
                         </td>
-
+    
                         <td data-label="Stock">
                             {{ mueble.cantidad }}
                         </td>
-
+    
                         <td data-label="Estado">
-
+    
                             <span class="state-pill">
                                 {{ mueble.estado }}
                             </span>
-
+    
                         </td>
 
-                        <td data-label="Destacado">
-
-                            {% if mueble.destacado %}
-
-                                <span class="yes-pill">
-                                    Sí
-                                </span>
-
-                            {% else %}
-
-                                <span class="no-pill">
-                                    No
-                                </span>
-
-                            {% endif %}
-
-                        </td>
-
+    
                         <td data-label="Acciones" class="actions-cell">
-
+    
                             <!-- EDITAR -->
                             <button class="btn btn-sm btn-warning"> 
                                 <a href="{% url 'IDpaginaEditarMuebles'  mueble.id %}">✏️ Editar</a>
                             </button>
                             
-
+    
                             <!-- VER -->
                             <button
                                 type="button"
@@ -96,19 +76,20 @@
                             >
                                 👁️ Ver
                             </button>
-
-
+    
+    
                         </td>
-
+    
                     </tr>
-
+    
                     {% endfor %}
-
+    
                 </tbody>
-
+    
             </table>
-
+    
         </div>
+
 
     </main>
 

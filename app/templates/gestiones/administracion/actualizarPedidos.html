@@ -1,56 +1,8 @@
 {% load static %}
 
 {% include 'gestiones/baseGestion/navbarGestion.html' %}
-
         <!-- MAIN -->
-        <main class="main" id="contenido">
-            <style>
-                .tabla-compras {
-                    width: 100%;
-                    border-collapse: collapse;
-                }
-
-                /* SOLO encabezado */
-                .tabla-compras thead {
-                    background-color: #d8d8d8;
-                }
-
-                .tabla-compras thead th {
-                    padding: 15px;
-                    text-align: left;
-                    font-weight: bold;
-                }
-
-                /* filas normales SIN líneas */
-                .tabla-compras tbody tr {
-                    background: transparent;
-                }
-
-                .tabla-compras tbody td {
-                    padding: 20px 15px;
-                    border: none;
-                }
-
-                /* botones */
-                .btn-editar {
-                    background: #f5b800;
-                    padding: 10px 20px;
-                    border-radius: 25px;
-                    text-decoration: none;
-                    color: black;
-                }
-
-                .btn-ver {
-                    background: #ffd84d;
-                    padding: 10px 20px;
-                    border-radius: 25px;
-                    text-decoration: none;
-                    color: black;
-                    border: 1px solid #0066ff;
-                }
-            </style>
-            <table class="tabla-compras" style="color: black;">
-
+            <table class="table table-dark table-striped table-hover" style="height: 100px;">
                 <thead>
                     <tr>
                         <th>N° Compra</th>
@@ -64,7 +16,7 @@
                     </tr>
                 </thead>
 
-                <tbody>
+                <tbody class="align-middle text-center">
                     <form method="post">
                         {% csrf_token %}
                         <input type="text" name="idDetalle" id="idDetalle" value="{{detalleCompra.idDetalle  }}" hidden >
@@ -101,7 +53,7 @@
                                 <!-- BOTON MODAL -->
                                 <button 
                                     type="submit"
-                                    class="btn-ver"
+                                    class="btn btn-warning"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalCompra{{ x.idCompra }}"
                                 >

@@ -35,14 +35,15 @@
     
 </head>
 
-<body>      <a href="#contenido" class="skip-link">
+<body  style="background-color: aliceblue;">      
+    <a href="#contenido" class="skip-link">
         Saltar al contenido
     </a>
 
     <div class="app">
 
         <!-- SIDEBAR -->
-        <aside class="sidebar" aria-label="Barra lateral principal">
+        <aside class="sidebar"  style="background: #FDEBD0; color: black;" aria-label="Barra lateral principal">
 
             <div class="brand">
                 <img src="{% static 'img/pequemundo_logo.png' %}"
@@ -50,103 +51,101 @@
 
                 <div class="brand-copy">
                     <h1>PequeMundo</h1>
-                    <p>Gestión de muebles</p>
+                    <p style="color: black;">Gestión de muebles</p>
                 </div>
             </div>
-
+            
             <!-- OPERACIÓN -->
             <div class="nav-group">
-
-                <p class="nav-title">Operación</p>
-
+                
+                <p class="nav-title" style="color: black;">Operación</p>
+                <hr>
                 <ul class="nav-list">
-
+                    
                     <li>
                         <a class="nav-item" href="{% url 'IDpaginaInicioGestiones' %}">
                             <span>🏠</span>
                             <span>Inicio</span>
                         </a>
                     </li>
-
-                    <li>
-                        <a class="nav-item" href="{% url 'IDpaginaGestionMuebles' %}">
-                            <span>🛏️</span>
-                            <span>Muebles</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="nav-item" href="{% url 'IDpaginaGestionCompras' %}">
-                            <span>📦</span>
-                            <span>Compras</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="nav-item" href="{% url 'IDpaginaGestionUsuarios' %}">
-                        <span>🚚</span>
-                        <span>Usuarios</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="nav-item" href="{% url 'IDpaginaGestionComunas' %}">
-                        <span>📍</span>
-                        <span>Comunas</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="nav-item" href="{% url 'IDpaginaGestionTiposEnvio' %}">
-                        <span>🚚</span>
-                        <span>Tipos de Envío</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="nav-item" href="{% url 'IDpaginaGestionPerfiles' %}">
-                        <span>👥</span>
-                        <span>Tipos de Usuarios</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="nav-item" href="{% url 'IDpaginaGestionDisponibilidades' %}">
-                        <span>📦</span>
-                        <span>Disponibilidades</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="nav-item" href="{% url 'IDpaginaGestionCategoriasMuebles' %}">
-                        <span>🏷️</span>
-                        <span>Categorías</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="nav-item" href="{% url 'IDpaginaGestionEstadosMuebles' %}">
-                        <span>🔵</span>
-                        <span>Estados Muebles</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a class="nav-item" href="{% url 'IDpaginaGestionEstadosProductosComprados' %}">
-                        <span>✅</span>
-                        <span>Estados Compra</span>
-                        </a>
-                    </li>
-
-                    <!-- # GESTON DE PERFILES DE USUARIO
-                        <li>
-                            <a class="nav-item" href="#">
-                                <span>🚚</span>
-                                <a href="{% url 'IDpaginaGestionUsuarios' %}">
+                    {% if user.is_authenticated %}
+                        {% for group in user.groups.all %}
+                            {% if group.name == 'admin'%}
+                                <li>
+                                    <a class="nav-item" href="{% url 'IDpaginaGestionUsuarios' %}">
+                                    <span>🚚</span>
                                     <span>Usuarios</span>
-                                </a>
-                            </a>
-                        </li>
-                    -->
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-item" href="{% url 'IDpaginaGestionPerfiles' %}">
+                                    <span>👥</span>
+                                    <span>Tipos de Usuarios</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if group.name == 'admin' or  group.name == 'vendedores' %}
+                                <li>
+                                    <a class="nav-item" href="{% url 'IDpaginaGestionMuebles' %}">
+                                        <span>🛏️</span>
+                                        <span>Muebles</span>
+                                    </a>
+                                </li>
+            
+                                <li>
+                                    <a class="nav-item" href="{% url 'IDpaginaGestionCompras' %}">
+                                        <span>📦</span>
+                                        <span>Compras</span>
+                                    </a>
+                                </li>
+            
+                                
+            
+                                <li>
+                                    <a class="nav-item" href="{% url 'IDpaginaGestionComunas' %}">
+                                    <span>📍</span>
+                                    <span>Comunas</span>
+                                    </a>
+                                </li>
+            
+                                <li>
+                                    <a class="nav-item" href="{% url 'IDpaginaGestionTiposEnvio' %}">
+                                    <span>🚚</span>
+                                    <span>Tipos de Envío</span>
+                                    </a>
+                                </li>
+                                
+            
+                                <li>
+                                    <a class="nav-item" href="{% url 'IDpaginaGestionDisponibilidades' %}">
+                                    <span>📦</span>
+                                    <span>Disponibilidades</span>
+                                    </a>
+                                </li>
+            
+                                <li>
+                                    <a class="nav-item" href="{% url 'IDpaginaGestionCategoriasMuebles' %}">
+                                    <span>🏷️</span>
+                                    <span>Categorías</span>
+                                    </a>
+                                </li>
+            
+                                <li>
+                                    <a class="nav-item" href="{% url 'IDpaginaGestionEstadosMuebles' %}">
+                                    <span>🔵</span>
+                                    <span>Estados Muebles</span>
+                                    </a>
+                                </li>
+            
+                                <li>
+                                    <a class="nav-item" href="{% url 'IDpaginaGestionEstadosProductosComprados' %}">
+                                    <span>✅</span>
+                                    <span>Estados Compra</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
 
                 </ul>
             </div>
@@ -155,22 +154,25 @@
         </aside>
 
         <!-- HEADER -->
-        <header class="header">
+        <header class="header" style="background: #D6C3A5;">
 
             <div>
                 <h2>Panel de gestión</h2>
 
-                <p>
+                <p style="color: black;">
                     Controla stock, pedidos y productos destacados
                     de muebles infantiles.
                 </p>
             </div>
             <div>
                 <a href="{% url 'IDindex' %}">
-                    <button>Volver pagina principal</button>
+                    <button class="btn btn-warning">Volver pagina principal</button>
                 </a>
             </div>
 
 
 
         </header>
+        
+        <!-- MAIN -->
+        <main class="main" id="contenido" style="background-color: #A7BED3;">
